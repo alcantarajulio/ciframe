@@ -148,16 +148,18 @@ Tudo continua saindo como `json.dumps(...)` e `Content-Type: text/html`
   faz `strip` e descarta token vazio, baixa a caixa e resolve pela `chave`. Se
   não existir, devolve `[]` com 200, como hoje (§2.8) — a busca não é o
   cadastro e o contrato antigo fica preservado. A resposta continua com os
-  mesmos campos de `main.py:210-220`. Ordem: a lista completa é ordenada por
-  popularidade antes de paginar, e `pagina` passa a ser validada (inteiro ≥ 1;
-  hoje `pagina=abc` derruba com 500, `main.py:227`). O filtro de gênero continua
-  em `apply_filtro` (`main.py:266-272`).
+  mesmos campos de `main.py:210-220`, a mesma ordem de hoje (a iteração de
+  `get_similares_por_sequencia` sobre `apply_filtro`, `main.py:203-223` e
+  `main.py:266-272`) e o mesmo corte de `get_pagina` (`main.py:226-228`). A
+  única mudança de parâmetro é a validação de `pagina` (inteiro ≥ 1; hoje
+  `pagina=abc` derruba com 500, `main.py:227`).
 
 Efeitos colaterais aceitos e mensuráveis: `Bm, G, D, A` (com espaço) passa a
-funcionar (hoje devolve 0) e `Bm,G,D,A,` continua funcionando; a primeira página
-passa a ser o topo por popularidade em vez do agrupamento por gênero de
-`main.py:203-223`, o que só muda o conteúdo da página 1 e corrige o fato de a
-ordem variar entre processos (`PYTHONHASHSEED`, §2.4).
+funcionar (hoje devolve 0) e `Bm,G,D,A,` continua funcionando. Nada mais muda no
+comportamento observável do endpoint — nem a ordem, nem o conteúdo da página 1;
+o fato de a ordem variar entre processos (`PYTHONHASHSEED`, §2.4) continua
+existindo, porque corrigi-lo é decisão de produto, não pré-requisito desta
+feature.
 
 ### Frontend
 
@@ -175,14 +177,13 @@ exibida (sequência vazia, acorde desconhecido e a sugestão de grafia). Mostrar
 `total_musicas` no bloco de cada sequência é o que torna o efeito da regra A
 compreensível para quem cadastra.
 
-Resultados: passar a enviar `pagina` (`sequencia.js:73-76` nunca envia) e
-oferecer "carregar mais" até uma página voltar com menos de 100 itens, sem
-mexer no formato da resposta. Remover `orderBy:'-popularidade'` do template
-(`sequencia.html:42`), já que a ordenação passa a ser do servidor e reordenar
-uma página isolada quebraria a paginação. Verificar também
-`ng-hide="music.diferenca.length"` (`sequencia.html:43`): `diferenca` não existe
-na resposta de sequência e o `ng-hide` funciona por acidente; deixar explícito
-para não quebrar se o campo for adicionado.
+Resultados ficam intocados: o controller continua sem enviar `pagina`
+(`sequencia.js:73-76`) e o template continua com `orderBy:'-popularidade'`
+(`sequencia.html:42`). A limitação atual de a UI mostrar só 100 dos 199/296
+resultados (§2.4) permanece — conhecida, herdada e declarada fora do escopo. Um
+cuidado ao mexir no template: `ng-hide="music.diferenca.length"`
+(`sequencia.html:43`) funciona por acidente, porque `diferenca` não existe na
+resposta de sequência; não remover a expressão.
 
 ## Alternativas consideradas e descartadas
 
@@ -231,8 +232,8 @@ acontece.
   pelo catálogo, preservando `json.dumps` e `text/html`.
 - Validação: vazio → 400, acorde fora do dataset → 400, 1 acorde válido,
   `pagina` validada.
-- `#/porsequencia` com catálogo do backend, formulário de cadastro, contagem por
-  sequência e paginação.
+- `#/porsequencia` com catálogo do backend, formulário de cadastro e contagem
+  por sequência.
 - ADR `docs/adr/0002-persist-custom-sequences.md`.
 
 **Fora do escopo (e por quê):**
@@ -245,6 +246,11 @@ acontece.
   persistência tornaria impossível saber qual mudança causou qual diferença.
 - Editar, renomear, excluir ou moderar sequências: o catálogo é append-only e
   anônimo nesta fase; exclusão e rate limit são o próximo problema, não este.
+- Paginar a UI ("carregar mais") e reordenar os resultados por popularidade no
+  servidor: não é exigência do enunciado e muda comportamento observável de um
+  endpoint que hoje serve à tela. A limitação de a UI mostrar 100 de 199/296
+  (§2.4) fica documentada; a validação de `pagina` entra só para o request não
+  morrer com 500.
 - Migrar músicas, gêneros ou a coluna `SEQ_FAMOSA` para o banco: fixado no
   enunciado e desnecessário — a coluna fica no CSV como oráculo dos testes.
 - Trocar `json.dumps` por `jsonify` ou corrigir o `Content-Type`: mudança de

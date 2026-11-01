@@ -27,8 +27,10 @@ do ADR 0001 para um catálogo que deve ter dezenas de linhas.
 
 O matching **não** é materializado no banco. A regra escolhida (bloco contíguo
 com vocabulário exato, a mesma que gerou a tag) permite indexar as músicas pelo
-conjunto de acordes no próprio load do CSV, e uma busca passa a custar 0,15 ms de
-mediana em vez dos ~400 ms que motivavam guardar resultados. Isso mantém o banco
+conjunto de acordes no próprio load do CSV, e uma busca passa a custar 0,15 ms
+de mediana por sequência, contra ~87 ms da implementação literal do gerador —
+os ~400 ms medidos na pesquisa são uma passada com as 6 sequências juntas, não o
+custo de uma consulta. Isso mantém o banco
 com uma única tabela, sem estado derivado para invalidar quando o CSV muda — que
 é justamente o tipo de inconsistência silenciosa que este projeto não tem
 ferramenta para detectar.
