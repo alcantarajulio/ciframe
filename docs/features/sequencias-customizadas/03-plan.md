@@ -20,7 +20,7 @@ Duas restrições que atravessam o plano:
 
 ## Passos
 
-1. [ ] **Gabarito da regressão com o código atual (antes de tocar em
+1. [x] **Gabarito da regressão com o código atual (antes de tocar em
    `main.py`).** Criar `scripts/gerar_gabarito_sequencias.py`: importa `main`,
    chama `get_similares_por_sequencia(id_seq, generos)` para `id_seq` 0–5,
    grava `tests/fixtures/gabarito_sequencias.json` com
@@ -32,11 +32,17 @@ Duas restrições que atravessam o plano:
    `c;g;am;f` = 296, `em;g` = 4, `c;a7;dm;g7` = 5, `gm;f` = 7,
    `c;c7;f;fm` = 3 (soma 514). O JSON tem 6 chaves com listas não vazias.
 
-2. [ ] **Matching pela regra A com índice por vocabulário, sem mexer nas
+2. [x] **Matching pela regra A com índice por vocabulário, sem mexer nas
    rotas.** Em `main.py`, no load do CSV: montar `cifra_borda` por música
-   (`';' + ';'.join(tokens minúsculos) + ';'`) e o índice
+   (`';' + ';'.join(tokens minúsculos) + ';'` — dict à parte em `main.py`,
+   não atributo de `Musica`, para não vazar no `__dict__` devolvido por
+   `/musicas` e `/musica/<id>`; `musica.py` não muda) e o índice
    `frozenset(acordes) -> [músicas]`, com as listas construídas na ordem de
-   `musicas.values()` (mesma iteração de `apply_filtro`). Nova função
+   `apply_filtro(musicas.values(), generos)` — gênero a gênero, cada gênero
+   por popularidade. (`apply_filtro`, `main.py:266-272`, **ignora** o primeiro
+   argumento e concatena `genero_musicas[genero]`; essa é a iteração real de
+   `get_similares_por_sequencia`, verificado empiricamente: a ordem de
+   `musicas.values()` puro **não** bate em 5 das 6 sequências.) Nova função
    `busca_por_sequencia(tokens)` faz lookup no índice + teste de substring com
    bordas, devolvendo os mesmos campos de `get_similares_por_sequencia`.
    **Verificação:** `python -m unittest tests.test_matching`, com dois testes

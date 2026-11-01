@@ -97,6 +97,20 @@ for k,v in genero_musicas.items():
 
 f.close()
 
+# índice por vocabulário para a busca por sequência (regra A): frozenset dos
+# acordes em minúsculas -> músicas com exatamente esse vocabulário. As listas
+# seguem a mesma iteração de apply_filtro (gênero a gênero, cada gênero por
+# popularidade) para preservar a ordem de get_similares_por_sequencia.
+# apply_filtro só é definida abaixo, então o loop é feito aqui na mesma forma.
+cifra_borda = {}
+indice_vocabulario = {}
+for genero in generos:
+    for musica in genero_musicas[genero]:
+        cifra_borda[musica.id_unico_musica] = ';' + ';'.join(
+                token.lower() for token in musica.cifra) + ';'
+        vocabulario = frozenset(token.lower() for token in musica.acordes)
+        indice_vocabulario.setdefault(vocabulario, []).append(musica)
+
 
 @app.route('/')
 def index():
@@ -207,6 +221,32 @@ def get_similares_por_sequencia(id_seq, generos_key):
     similares = []
     for musica in collection:
         if str(id_seq) in musica.seqs_famosas:
+            similar = {
+                'id_unico_musica' : musica.id_unico_musica,
+                'id_artista' : musica.id_artista,
+                'id_musica' : musica.id_musica,
+                'nome_artista' : musica.nome_artista,
+                'nome_musica' : musica.nome_musica,
+                'popularidade' : musica.popularidade,
+                'acordes' : musica.acordes,
+                'genero' : musica.genero,
+                'url' : musica.url,
+            }
+            similares.append(similar)
+
+    return similares
+
+# Busca por sequência de acordes (regra A): vocabulário exato via índice +
+# bloco contíguo testado com bordas ';' (sem borda, 'a7;d;a' casaria por
+# prefixo em 'A7;D;A7'). Devolve os mesmos campos de
+# get_similares_por_sequencia, na mesma ordem.
+def busca_por_sequencia(tokens):
+    tokens = [token.lower() for token in tokens]
+    seq_borda = ';' + ';'.join(tokens) + ';'
+
+    similares = []
+    for musica in indice_vocabulario.get(frozenset(tokens), []):
+        if seq_borda in cifra_borda[musica.id_unico_musica]:
             similar = {
                 'id_unico_musica' : musica.id_unico_musica,
                 'id_artista' : musica.id_artista,
