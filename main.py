@@ -6,6 +6,8 @@ from musica import *
 from collections import OrderedDict
 import unicodedata
 
+import sequencias_db
+
 app = Flask(__name__)
 
 def limpa_cifra(raw_cifra):
@@ -110,6 +112,11 @@ for genero in generos:
                 token.lower() for token in musica.cifra) + ';'
         vocabulario = frozenset(token.lower() for token in musica.acordes)
         indice_vocabulario.setdefault(vocabulario, []).append(musica)
+
+# catálogo de sequências: cria diretório/schema (conferindo user_version) e
+# semeia as 6 originais de forma idempotente (INSERT OR IGNORE)
+sequencias_db.init()
+sequencias_db.seed()
 
 
 @app.route('/')
@@ -239,13 +246,19 @@ def get_similares_por_sequencia(id_seq, generos_key):
 # Busca por sequência de acordes (regra A): vocabulário exato via índice +
 # bloco contíguo testado com bordas ';' (sem borda, 'a7;d;a' casaria por
 # prefixo em 'A7;D;A7'). Devolve os mesmos campos de
-# get_similares_por_sequencia, na mesma ordem.
-def busca_por_sequencia(tokens):
+# get_similares_por_sequencia, na mesma ordem. generos_key filtra por gênero,
+# como apply_filtro fazia na função velha. Sequência vazia devolve [] — sem a
+# guarda, ';;' casaria as músicas de cifra vazia (§2.8 da pesquisa).
+def busca_por_sequencia(tokens, generos_key=None):
     tokens = [token.lower() for token in tokens]
+    if not tokens:
+        return []
     seq_borda = ';' + ';'.join(tokens) + ';'
 
     similares = []
     for musica in indice_vocabulario.get(frozenset(tokens), []):
+        if generos_key is not None and musica.genero not in generos_key:
+            continue
         if seq_borda in cifra_borda[musica.id_unico_musica]:
             similar = {
                 'id_unico_musica' : musica.id_unico_musica,

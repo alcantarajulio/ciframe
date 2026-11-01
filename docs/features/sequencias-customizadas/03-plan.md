@@ -43,18 +43,28 @@ Duas restrições que atravessam o plano:
    argumento e concatena `genero_musicas[genero]`; essa é a iteração real de
    `get_similares_por_sequencia`, verificado empiricamente: a ordem de
    `musicas.values()` puro **não** bate em 5 das 6 sequências.) Nova função
-   `busca_por_sequencia(tokens)` faz lookup no índice + teste de substring com
-   bordas, devolvendo os mesmos campos de `get_similares_por_sequencia`.
-   **Verificação:** `python -m unittest tests.test_matching`, com dois testes
-   commitados: (a) para cada uma das 6, `sorted(ids novos) ==
+   `busca_por_sequencia(tokens, generos_key=None)` faz lookup no índice +
+   teste de substring com bordas, devolvendo os mesmos campos de
+   `get_similares_por_sequencia`; com `generos_key`, os candidatos são
+   filtrados por `musica.genero` — a função velha filtrava via `apply_filtro`
+   e a tela manda `&generos=`, então sem esse parâmetro o passo 8 quebraria o
+   filtro de gênero sem teste pegar. Guarda no início: `tokens` vazio devolve
+   `[]` (sem ela, a sequência vazia casaria as 8.141 músicas de cifra vazia
+   por `';;' in ';;'`, o perigo da §2.8).
+   **Verificação:** `python -m unittest tests.test_matching`, com quatro
+   testes commitados: (a) para cada uma das 6, `sorted(ids novos) ==
    gabarito[chave]`; (b) borda: `["A7","D","A"]` devolve exatamente 1 música
-   (não 17 por prefixo). Mais uma **conferência manual única**, não commitada
-   (a função velha morre no passo 8): no mesmo processo, comparar a ordem de
-   `busca_por_sequencia` com a de `get_similares_por_sequencia` para as 6 —
-   `python -c "import main; ..."` —, que é o único lugar onde a ordem é
-   determinística.
+   (não 17 por prefixo); (c) `busca_por_sequencia([])` devolve `[]` — a
+   sequência vazia não chega à busca; (d) filtro de gênero:
+   `busca_por_sequencia(tokens, ['Rock'])` devolve só músicas de Rock, na
+   mesma ordem relativa do resultado sem filtro. Mais uma **conferência
+   manual única**, não commitada (a função velha morre no passo 8): no mesmo
+   processo, comparar a ordem de `busca_por_sequencia` com a de
+   `get_similares_por_sequencia` para as 6, sem filtro e com
+   `generos_key=['Rock']` — `python -c "import main; ..."` —, que é o único
+   lugar onde a ordem é determinística.
 
-3. [ ] **Camada SQLite em módulo novo `sequencias_db.py`.** Conexão por
+3. [x] **Camada SQLite em módulo novo `sequencias_db.py`.** Conexão por
    chamada; `PRAGMA journal_mode=WAL`, `busy_timeout=5000`,
    `foreign_keys=ON`; esquema da tabela `sequencias` (proposta §Esquema) com
    `UNIQUE(chave)`; `PRAGMA user_version = 1` conferido no init; seed das 6
@@ -106,12 +116,18 @@ Duas restrições que atravessam o plano:
 
 8. [ ] **`/similares?sequencia=` resolve pelo catálogo; remove o dict
    hardcoded.** Separar por vírgula, `strip`, descartar vazio, baixar caixa,
-   montar a chave e buscar no catálogo; não existe → `[]` com 200, como hoje.
+   montar a chave e buscar no catálogo; existe →
+   `busca_por_sequencia(tokens_da_linha, generos_key)`, **repassando o filtro
+   de gênero** como a função velha fazia via `apply_filtro` (a tela manda
+   `&generos=`); não existe → `[]` com 200, como hoje.
    `pagina` validada como inteiro ≥ 1 (400 em vez do 500 de hoje). Apagar o
    dict `sequencias` e a função `get_similares_por_sequencia`.
    **Verificação:** unittest — página 1 do endpoint idêntica a
    `get_pagina(busca_por_sequencia(tokens), '1')` calculada **no mesmo
    processo**; todos os ids da página 1 pertencem ao conjunto do gabarito;
+   com `&generos=Rock`, só músicas de Rock, idêntica a
+   `get_pagina(busca_por_sequencia(tokens, ['Rock']), '1')` no mesmo
+   processo;
    `Bm, G, D, A` (com espaços) funciona; sequência inexistente → `[]` 200;
    `pagina=abc` → 400; `/similares?acordes=` e `/search` intactos. Depois,
    suíte inteira: `python -m unittest discover -s tests`.

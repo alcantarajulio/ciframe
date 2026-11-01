@@ -1,7 +1,16 @@
 # coding: utf-8
+import atexit
 import json
 import os
+import shutil
+import tempfile
 import unittest
+
+# o import de main roda o boot do catálogo (passo 4); isola o banco em
+# arquivo temporário para não criar dados/ no checkout durante os testes
+_tmpdir = tempfile.mkdtemp()
+atexit.register(shutil.rmtree, _tmpdir, True)
+os.environ['SEQUENCIAS_DB'] = os.path.join(_tmpdir, 'sequencias.db')
 
 import main
 
@@ -25,6 +34,21 @@ class TestMatching(unittest.TestCase):
         # (02-proposal.md, "Bordas, e não in puro")
         similares = main.busca_por_sequencia(['A7', 'D', 'A'])
         self.assertEqual(len(similares), 1)
+
+    def test_sequencia_vazia_nao_chega_na_busca(self):
+        # sem a guarda, ';;' casaria as 8.141 músicas de cifra vazia (§2.8)
+        self.assertEqual(main.busca_por_sequencia([]), [])
+
+    def test_filtro_por_genero(self):
+        tokens = ['bm', 'g', 'd', 'a']
+        todos = main.busca_por_sequencia(tokens)
+        filtrado = main.busca_por_sequencia(tokens, ['Rock'])
+        self.assertTrue(filtrado)
+        self.assertTrue(all(m['genero'] == 'Rock' for m in filtrado))
+        # mesmo subconjunto do resultado sem filtro, na mesma ordem relativa
+        esperado = [m['id_unico_musica'] for m in todos
+                if m['genero'] == 'Rock']
+        self.assertEqual([m['id_unico_musica'] for m in filtrado], esperado)
 
 if __name__ == '__main__':
     unittest.main()
