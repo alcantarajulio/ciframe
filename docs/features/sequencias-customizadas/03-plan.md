@@ -178,7 +178,7 @@ Três restrições que atravessam o plano:
    `pagina=abc` → 400; `/similares?acordes=` e `/search` intactos. Depois,
    suíte inteira: `python -m unittest discover -s tests`.
 
-9. [ ] **Docker e documentação.** `Dockerfile` ganha `RUN mkdir -p /app/dados`
+9. [x] **Docker e documentação.** `Dockerfile` ganha `RUN mkdir -p /app/dados`
    e `VOLUME ["/app/dados"]`; `dados/` entra no `.dockerignore` **e no
    `.gitignore`** (o default relativo cria o banco no checkout em dev); README
    e AGENTS documentam
@@ -188,8 +188,11 @@ Três restrições que atravessam o plano:
    uma sequência via `curl -X POST`, `docker rm -f` no container, subir de
    novo com o mesmo volume → `curl localhost:8080/sequencias` ainda mostra a
    sequência. Repetir sem volume e confirmar que o cadastro some após
-   `docker rm` (comportamento documentado). E localmente: `python main.py`
-   cria `dados/sequencias.db` sem erro de permissão.
+   `docker rm` (comportamento documentado). Com o container de pé, regressão
+   das 6 por `/similares` na 8080 bate id a id com o gabarito (514/514). E
+   localmente: o servidor na 5001 (`python -c "import main;
+   main.app.run(port=5001)"`, porque o AirPlay ocupa a 5000) cria
+   `dados/sequencias.db` sem erro de permissão.
 
 10. [ ] **Frontend mínimo.** `sequencia.js`: remover os 4 objetos hardcoded,
     carregar `GET /sequencias` no início do controller montando

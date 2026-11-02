@@ -6,9 +6,12 @@ similar songs. Full description: [README.md](README.md).
 
 ## Stack
 
-- Backend: Python 3.9, Flask 3.1, gunicorn. Single file (`main.py`) that
-  loads `data/top/dataset_final.csv` into memory once at startup — there is
-  no database.
+- Backend: Python 3.9, Flask 3.1, gunicorn. Entry point `main.py` loads
+  `data/top/dataset_final.csv` into memory once at startup; `sequencias_db.py`
+  owns the SQLite catalog. Songs,
+  genres and chords are memory-only; the custom sequence catalog is the one
+  thing persisted, in SQLite at `dados/sequencias.db` (see
+  [docs/adr/0002-persist-custom-sequences.md](docs/adr/0002-persist-custom-sequences.md)).
 - Frontend: AngularJS 1.4.9 + jQuery, loaded from CDN in `static/index.html`,
   no build step. Legacy, and there's no plan to modernize the stack itself —
   but touching it is no longer off-limits when a task needs it; see
@@ -21,8 +24,13 @@ Docker (matches how the app actually ships):
 
 ```
 docker build -t ciframe .
-docker run -p 8080:8080 ciframe
+docker run -v deciframe-dados:/app/dados -p 8080:8080 ciframe
 ```
+
+The named volume keeps the sequence catalog across `docker rm -f`. Without
+`-v`, the catalog lives inside the container and is lost when it's removed.
+`dados/` is gitignored and dockerignored; running the app from the checkout
+creates it locally (the default DB path is relative).
 
 Or a plain virtualenv:
 
@@ -43,5 +51,6 @@ Done when this returns a JSON array of genre names (e.g. `["Rock", "Samba", ...]
 ## Gotchas
 
 - Editing `data/top/*.csv` requires a restart: it's read once at import time, not per-request.
+- The sequence catalog persists in `dados/sequencias.db` (gitignored). Deleting `dados/` resets it to the 6 seeded sequences; tests and the gabarito script point `SEQUENCIAS_DB` at a temp file so they don't touch it.
 - Every endpoint returns `json.dumps(...)` as a plain string, not `jsonify` — responses come back `Content-Type: text/html`. This is intentional legacy behavior; changing it is a real API change, not a cleanup.
 - Check `docs/adr/` before changing the deploy setup — it has a documented reason for its current state.
