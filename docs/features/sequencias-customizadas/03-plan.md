@@ -26,16 +26,20 @@ Três restrições que atravessam o plano:
 ## Passos
 
 1. [x] **Gabarito da regressão com o código atual (antes de tocar em
-   `main.py`).** Criar `scripts/gerar_gabarito_sequencias.py`: importa `main`,
-   chama `get_similares_por_sequencia(id_seq, generos)` para `id_seq` 0–5,
-   grava `tests/fixtures/gabarito_sequencias.json` com
+   `main.py`).** Criar `scripts/gerar_gabarito_sequencias.py`: importa `main`
+   (com `SEQUENCIAS_DB` temporário, para não criar `dados/`) e lê a coluna
+   `SEQ_FAMOSA` direto de `musica.seqs_famosas` para `id_seq` 0–5 — sem chamar
+   função de busca de `main.py`, para o oráculo ficar independente do código
+   testado. Grava `tests/fixtures/gabarito_sequencias.json` com
    `{chave: [id_unico_musica, ...]}` — **ids em `sorted()`**, porque a ordem
    de iteração varia entre processos (§2.4). Chaves: `bm;g;d;a`, `c;g;am;f`,
    `em;g`, `c;a7;dm;g7`, `gm;f`, `c;c7;f;fm`. O fixture é commitado.
    **Verificação:** `python scripts/gerar_gabarito_sequencias.py` imprime os
    totais, que têm de bater com a §2.1 da pesquisa: `bm;g;d;a` = 199,
    `c;g;am;f` = 296, `em;g` = 4, `c;a7;dm;g7` = 5, `gm;f` = 7,
-   `c;c7;f;fm` = 3 (soma 514). O JSON tem 6 chaves com listas não vazias.
+   `c;c7;f;fm` = 3 (soma 514). O JSON tem 6 chaves com listas não vazias, e
+   `git diff --exit-code tests/fixtures/gabarito_sequencias.json` sai vazio
+   depois de rodar o script sobre o fixture commitado.
 
 2. [x] **Matching pela regra A com índice por vocabulário, sem mexer nas
    rotas.** Em `main.py`, no load do CSV: montar `cifra_borda` por música
@@ -129,11 +133,15 @@ Três restrições que atravessam o plano:
 7. [x] **`POST /sequencias`: os três 400.** Corpo que não é JSON com
    `acordes` → `corpo_invalido`; lista vazia ou tokens em branco/separadores
    → `sequencia_vazia`; token fora do set `acordes` → `acorde_desconhecido`
-   com `sugestao` quando existir grafia igual ignorando caixa (validação
-   exata contra o set, como na proposta). A validação é exata inclusive na
-   caixa — `AM7` e `Am7` são tokens válidos e **distintos** —, e a `sugestao`
-   continua sendo o caminho para corrigir grafia de caixa errada (`bm` →
-   `Bm`).
+   com `sugestoes`: lista de **todas** as grafias que batem ignorando caixa,
+   ordenada pelo número de músicas que usam cada uma (decrescente; empate
+   alfabético), e `[]` quando não há nenhuma (validação exata contra o set,
+   como na proposta). A validação é exata inclusive na
+   caixa — `AM7` e `Am7` são tokens válidos e **distintos** —, e as
+   `sugestoes` continuam sendo o caminho para corrigir grafia de caixa errada
+   (`bm` → `Bm`). A contagem é de músicas, não de ocorrências: cada música
+   conta uma vez por grafia (via `musica.acordes`), então um refrão repetido
+   não distorce a ordem.
    Cada token sofre `strip` de espaços nas pontas **antes** da validação e é
    guardado já sem eles (`[" Bm "]` vira `["Bm"]` e cai na chave `bm`); sem
    isso `"Bm "` seria recusado como desconhecido mesmo sendo grafia do
@@ -141,8 +149,10 @@ Três restrições que atravessam o plano:
    (`,`/`;`) também contam como vazio. O trim não funde acordes diferentes:
    `A7M` (sétima maior) continua em `a7m`, distinto de `Am7` em `am7`.
    **Verificação:** unittest cobrindo cada 400 — status, campo `erro` e, no
-   caso do acorde, presença de `sugestao` preenchida para grafia com caixa
-   errada e `null` para token inexistente; mais `[" Bm "]` aceito e guardado
+   caso do acorde, `sugestoes` com todas as grafias (`bm` → `['Bm']`), ordem
+   por uso (`am7` começa com `Am7`, não `AM7`; 5.729 x 40 músicas; `f#m`
+   começa com `F#m`) e `[]` para token inexistente (`Cb`); mais `[" Bm "]`
+   aceito e guardado
    sem os espaços.
 
 8. [x] **`/similares?sequencia=` resolve pelo catálogo; remove o dict
@@ -186,8 +196,8 @@ Três restrições que atravessam o plano:
     `{acorde, cor}` para o `df-hex`; formulário acima da lista com campo que
     aceita espaço ou vírgula, `datalist` alimentado por `GET /acordes`, e
     botão que faz `POST /sequencias`; em 201/200 recarregar a lista e
-    selecionar a sequência; em 400 exibir a mensagem do servidor (incluindo a
-    `sugestao`). `sequencia.html`: mostrar `total_musicas` em cada bloco; não
+    selecionar a sequência; em 400 exibir a mensagem do servidor (incluindo as
+    `sugestoes`). `sequencia.html`: mostrar `total_musicas` em cada bloco; não
     tocar no `ng-hide="music.diferenca.length"` nem no
     `orderBy:'-popularidade'`.
     **Verificação:** checklist manual no navegador — a página lista as 6 do

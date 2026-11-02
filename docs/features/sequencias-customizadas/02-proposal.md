@@ -289,6 +289,15 @@ acorde mas mudam a caixa de outra letra também viram sequências diferentes:
 fora do escopo — a mudança aqui é parar de descartar caixa, não passar a
 normalizar.
 
+Correção decorrente na sugestão: com a validação exata, o campo `sugestao`
+(uma grafia só) passou a errar o acorde, porque `sorted()[0]` prefere
+maiúsculas — `am7` sugeria `AM7` (40 músicas) em vez de `Am7` (5.729), e
+`f#m` sugeria `F#M` (59) em vez de `F#m` (10.348). O 400 passa a trazer
+`sugestoes`: a lista de **todas** as grafias que batem ignorando caixa,
+ordenada pelo número de músicas que usam cada uma (decrescente; empate
+alfabético), e `[]` quando não há nenhuma. O erro mostra todas as opções
+reais do dataset sem escolher uma grafia que, como `AM7`, é outro acorde.
+
 Consequência de dados: a chave antiga (`bm;g;d;a`) não encontra mais as
 sequências novas (`Bm;G;D;A`). Como a feature ainda não foi publicada, não há
 migração: o banco local `dados/sequencias.db` é recriado pelo seed no próximo

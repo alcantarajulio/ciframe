@@ -39,6 +39,9 @@ TAM_PAGINA = 100
 genero_musicas = {}
 generos = set()
 acordes = set()
+# quantas músicas usam cada grafia de acorde (uma vez por música, via
+# musica.acordes): serve para ordenar as sugestões de grafia no POST /sequencias
+uso_acordes = {}
 
 musicas_dict = {}
 
@@ -72,6 +75,7 @@ for line in f:
     # conjunto único de acordes
     for acorde in musica_obj.acordes:
         acordes.add(acorde)
+        uso_acordes[acorde] = uso_acordes.get(acorde, 0) + 1
 
     # constrói dict mapeando gênero para músicas
     # deve ser usado para melhorar o desempenho das buscas
@@ -213,11 +217,17 @@ def criar_sequencia():
     for token in tokens:
         if token in acordes:
             continue
-        # sugestao: grafia do dataset igual ignorando a caixa (exata)
-        candidatos = sorted(a for a in acordes if a.lower() == token.lower())
+        # sugestoes: todas as grafias do dataset iguais ignorando a caixa,
+        # ordenadas por quantas músicas usam cada uma (mais usada primeiro;
+        # empate alfabético). Uma lista, e não uma grafia só, porque com caixa
+        # exata AM7 e Am7 são acordes diferentes: sugerir sorted()[0] preferia
+        # as maiúsculas (am7 -> AM7, 40 músicas, em vez de Am7, 5.729).
+        candidatos = sorted(
+                (a for a in acordes if a.lower() == token.lower()),
+                key=lambda a: (-uso_acordes.get(a, 0), a))
         desconhecidos.append({
             'acorde' : token,
-            'sugestao' : candidatos[0] if candidatos else None,
+            'sugestoes' : candidatos,
         })
     if desconhecidos:
         return json.dumps({

@@ -154,25 +154,43 @@ class TestSequenciasApi(unittest.TestCase):
             self.assertEqual(self.corpo(resposta),
                     {'erro': 'sequencia_vazia'})
 
-    def test_post_acorde_desconhecido_com_sugestao(self):
+    def test_post_acorde_desconhecido_com_sugestoes(self):
         resposta = self.client.post('/sequencias',
                 json={'acordes': ['bm', 'G', 'D', 'A']})
         self.assertEqual(resposta.status_code, 400)
         self.assertIn('text/html', resposta.content_type)
         self.assertEqual(self.corpo(resposta), {
             'erro': 'acorde_desconhecido',
-            'acordes': [{'acorde': 'bm', 'sugestao': 'Bm'}],
+            'acordes': [{'acorde': 'bm', 'sugestoes': ['Bm']}],
         })
         # nada foi criado
         self.assertEqual(len(self.corpo(self.client.get('/sequencias'))), 6)
 
-    def test_post_acorde_desconhecido_sem_sugestao(self):
+    def test_post_sugestoes_ordenadas_por_uso(self):
+        # am7 bate ignorando caixa com Am7 (5.729 músicas) e AM7 (40). A lista
+        # tem de trazer a grafia mais usada primeiro; sorted() puro preferia
+        # AM7 (maiúscula antes de minúscula), que com caixa exata é outro
+        # acorde — o erro que esta revisão corrige.
+        resposta = self.client.post('/sequencias',
+                json={'acordes': ['am7', 'D']})
+        self.assertEqual(resposta.status_code, 400)
+        corpo = self.corpo(resposta)
+        self.assertEqual(corpo['acordes'][0]['sugestoes'],
+                ['Am7', 'AM7'])
+
+        sustenido = self.client.post('/sequencias',
+                json={'acordes': ['f#m', 'D']})
+        self.assertEqual(sustenido.status_code, 400)
+        self.assertEqual(self.corpo(sustenido)['acordes'][0]['sugestoes'],
+                ['F#m', 'F#M'])
+
+    def test_post_acorde_desconhecido_sem_sugestoes(self):
         resposta = self.client.post('/sequencias',
                 json={'acordes': ['Cb', 'G']})
         self.assertEqual(resposta.status_code, 400)
         self.assertEqual(self.corpo(resposta), {
             'erro': 'acorde_desconhecido',
-            'acordes': [{'acorde': 'Cb', 'sugestao': None}],
+            'acordes': [{'acorde': 'Cb', 'sugestoes': []}],
         })
 
     def _todas_as_musicas(self, sequencia):
