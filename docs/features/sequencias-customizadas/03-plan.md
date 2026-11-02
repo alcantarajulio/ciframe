@@ -5,7 +5,7 @@ Restrições fixas: testes com `unittest` da stdlib (zero dependência nova em
 `requirements.txt`); `main.py` continua servindo `json.dumps` com
 `Content-Type: text/html`; a regressão das 6 sequências é o contrato do produto.
 
-Duas restrições que atravessam o plano:
+Três restrições que atravessam o plano:
 
 - **Ordem não é contrato entre processos.** A ordem dos resultados de
   `/similares?sequencia=` varia com `PYTHONHASHSEED` (§2.4 da pesquisa) —
@@ -17,6 +17,11 @@ Duas restrições que atravessam o plano:
   container o `WORKDIR` é `/app`, então o arquivo cai em
   `/app/dados/sequencias.db` — mesmo lugar de antes, mesmo volume. Localmente
   cai no checkout, coerente com o CSV, que já exige rodar da raiz.
+- **Porta local 5000 ocupada no macOS.** O AirPlay Receiver escuta na 5000
+  nesta máquina, então `python main.py` não bindaria. As verificações locais
+  com servidor de pé usam
+  `python -c "import main; main.app.run(port=5001)"` e `localhost:5001`; o
+  Docker continua na 8080. Nenhuma mudança em `main.py`: o default segue 5000.
 
 ## Passos
 
@@ -77,14 +82,15 @@ Duas restrições que atravessam o plano:
    ordem certa, seed repetido não duplica, `inserir_ou_obter` duplicado
    devolve a linha existente com `criada=False`.
 
-4. [ ] **Boot: init do banco + seed, sem mudar rota nenhuma.** Em `main.py`,
+4. [x] **Boot: init do banco + seed, sem mudar rota nenhuma.** Em `main.py`,
    depois do load do CSV: chamar o init de `sequencias_db.py` (cria diretório,
    schema, confere `user_version`) e rodar o seed das 6. Nenhum endpoint novo
    ainda; o dict `sequencias` continua em uso.
-   **Verificação:** `SEQUENCIAS_DB=/tmp/seq-boot.db python main.py` sobe sem
-   erro; em outro terminal,
+   **Verificação:** com a 5001 local (ver restrição de porta),
+   `SEQUENCIAS_DB=/tmp/seq-boot.db python -c "import main; main.app.run(port=5001)"`
+   sobe sem erro; em outro terminal,
    `sqlite3 /tmp/seq-boot.db 'select count(*), origem from sequencias group by origem'`
-   devolve 6 linhas `seed`; `curl localhost:5000/generos` continua devolvendo
+   devolve 6 linhas `seed`; `curl localhost:5001/generos` continua devolvendo
    o JSON de gêneros.
 
 5. [ ] **`GET /sequencias`.** Devolve
