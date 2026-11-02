@@ -93,7 +93,7 @@ Três restrições que atravessam o plano:
    devolve 6 linhas `seed`; `curl localhost:5001/generos` continua devolvendo
    o JSON de gêneros.
 
-5. [ ] **`GET /sequencias`.** Devolve
+5. [x] **`GET /sequencias`.** Devolve
    `[{id, acordes, origem, total_musicas}]`, com `total_musicas` calculado na
    hora via `busca_por_sequencia`. Resposta em `json.dumps`, como sempre.
    **Verificação:** `python -m unittest tests.test_api` (test_client com
@@ -102,7 +102,7 @@ Três restrições que atravessam o plano:
    `len(gabarito["bm;g;d;a"])`. Mais `curl localhost:5000/sequencias` com o
    servidor de pé.
 
-6. [ ] **`POST /sequencias`: criação e idempotência.** Corpo
+6. [x] **`POST /sequencias`: criação e idempotência.** Corpo
    `{"acordes": [...]}` válido → 201 `{"id", "acordes", "existente": false,
    "total_musicas"}`; mesma chave de novo → 200 com `existente: true` e mesmo
    `id`. Chave = tokens em minúsculas unidos por `;`, na ordem digitada;
@@ -111,22 +111,30 @@ Três restrições que atravessam o plano:
    devolve 200 com o mesmo `id` e a lista continua com 7. Mais um
    `curl -X POST` manual.
 
-7. [ ] **`POST /sequencias`: os três 400.** Corpo que não é JSON com
+7. [x] **`POST /sequencias`: os três 400.** Corpo que não é JSON com
    `acordes` → `corpo_invalido`; lista vazia ou tokens em branco/separadores
    → `sequencia_vazia`; token fora do set `acordes` → `acorde_desconhecido`
    com `sugestao` quando existir grafia igual ignorando caixa (validação
    exata contra o set, como na proposta).
+   Cada token sofre `strip` de espaços nas pontas **antes** da validação e é
+   guardado já sem eles (`[" Bm "]` vira `["Bm"]` e cai na chave `bm`); sem
+   isso `"Bm "` seria recusado como desconhecido mesmo sendo grafia do
+   dataset. A checagem de vazio roda depois do trim e só separadores
+   (`,`/`;`) também contam como vazio. O trim não funde acordes diferentes:
+   `A7M` (sétima maior) continua em `a7m`, distinto de `Am7` em `am7`.
    **Verificação:** unittest cobrindo cada 400 — status, campo `erro` e, no
    caso do acorde, presença de `sugestao` preenchida para grafia com caixa
-   errada e `null` para token inexistente.
+   errada e `null` para token inexistente; mais `[" Bm "]` aceito e guardado
+   sem os espaços.
 
-8. [ ] **`/similares?sequencia=` resolve pelo catálogo; remove o dict
+8. [x] **`/similares?sequencia=` resolve pelo catálogo; remove o dict
    hardcoded.** Separar por vírgula, `strip`, descartar vazio, baixar caixa,
    montar a chave e buscar no catálogo; existe →
    `busca_por_sequencia(tokens_da_linha, generos_key)`, **repassando o filtro
    de gênero** como a função velha fazia via `apply_filtro` (a tela manda
    `&generos=`); não existe → `[]` com 200, como hoje.
-   `pagina` validada como inteiro ≥ 1 (400 em vez do 500 de hoje). Apagar o
+   `pagina` validada como inteiro ≥ 1; fora disso, 400 com corpo
+   `{"erro": "pagina_invalida"}` (em vez do 500 de hoje). Apagar o
    dict `sequencias` e a função `get_similares_por_sequencia`.
    **Verificação:** unittest — página 1 do endpoint idêntica a
    `get_pagina(busca_por_sequencia(tokens), '1')` calculada **no mesmo

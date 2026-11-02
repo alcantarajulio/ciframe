@@ -39,12 +39,6 @@ TAM_PAGINA = 100
 genero_musicas = {}
 generos = set()
 acordes = set()
-sequencias = {'BmGDA' : 0,
-        'CGAmF' : 1,
-        'EmG' : 2,
-        'CA7DmG7' : 3,
-        'GmF' : 4,
-        'CC7FFm' : 5}
 
 musicas_dict = {}
 
@@ -102,7 +96,8 @@ f.close()
 # índice por vocabulário para a busca por sequência (regra A): frozenset dos
 # acordes em minúsculas -> músicas com exatamente esse vocabulário. As listas
 # seguem a mesma iteração de apply_filtro (gênero a gênero, cada gênero por
-# popularidade) para preservar a ordem de get_similares_por_sequencia.
+# popularidade) para preservar a ordem de apply_filtro — que é a mesma ordem
+# antiga de get_similares_por_sequencia, hoje removida.
 # apply_filtro só é definida abaixo, então o loop é feito aqui na mesma forma.
 cifra_borda = {}
 indice_vocabulario = {}
@@ -184,6 +179,59 @@ def get_generos():
 def get_acordes():
     return json.dumps(list(acordes))
 
+@app.route('/sequencias')
+def get_sequencias():
+    out = []
+    for linha in sequencias_db.listar():
+        out.append({
+            'id' : linha['id'],
+            'acordes' : linha['acordes'],
+            'origem' : linha['origem'],
+            'total_musicas' : len(busca_por_sequencia(linha['acordes'])),
+        })
+    return json.dumps(out)
+
+@app.route('/sequencias', methods=['POST'])
+def criar_sequencia():
+    dados = request.get_json(silent=True)
+    if (not isinstance(dados, dict)
+            or not isinstance(dados.get('acordes'), list)):
+        return json.dumps({'erro' : 'corpo_invalido'}), 400
+
+    tokens = dados['acordes']
+    if any(not isinstance(token, str) for token in tokens):
+        return json.dumps({'erro' : 'corpo_invalido'}), 400
+    # tolera espaços nas pontas: trim antes de validar e guardar (" Bm " ->
+    # "Bm"); a checagem de vazio roda depois, e só separadores também contam
+    tokens = [token.strip() for token in tokens]
+    if not tokens or any(token.strip(';,') == '' for token in tokens):
+        return json.dumps({'erro' : 'sequencia_vazia'}), 400
+
+    desconhecidos = []
+    for token in tokens:
+        if token in acordes:
+            continue
+        # sugestao: grafia do dataset igual ignorando a caixa (exata)
+        candidatos = sorted(a for a in acordes if a.lower() == token.lower())
+        desconhecidos.append({
+            'acorde' : token,
+            'sugestao' : candidatos[0] if candidatos else None,
+        })
+    if desconhecidos:
+        return json.dumps({
+            'erro' : 'acorde_desconhecido',
+            'acordes' : desconhecidos,
+        }), 400
+
+    linha, criada = sequencias_db.inserir_ou_obter(tokens)
+    corpo = {
+        'id' : linha['id'],
+        'acordes' : linha['acordes'],
+        'existente' : not criada,
+        'total_musicas' : len(busca_por_sequencia(linha['acordes'])),
+    }
+    return json.dumps(corpo), 201 if criada else 200
+
 @app.route('/musica/<m_id>/')
 def get_musica(m_id):
     return json.dumps(musicas[m_id].__dict__)
@@ -209,45 +257,34 @@ def get_similares():
         musica = musicas[id_musica_tag]
         acordes = musica.acordes
     elif sequencia_tag:
-        acordes = sequencia_tag.replace(',','')
-        similares = []
+        try:
+            pagina = int(pagina_tag)
+        except ValueError:
+            pagina = 0
+        if pagina < 1:
+            return json.dumps({'erro' : 'pagina_invalida'}), 400
 
-        if acordes in sequencias:
-            id_seq = sequencias[acordes]
-            similares = get_pagina(get_similares_por_sequencia(id_seq, generos_key), pagina_tag)
-        return json.dumps(similares)
+        tokens = [token.strip().lower() for token in sequencia_tag.split(',')]
+        tokens = [token for token in tokens if token]
+        if not tokens:
+            return json.dumps([])
+
+        linha = sequencias_db.buscar_por_chave(';'.join(tokens))
+        if linha is None:
+            return json.dumps([])
+
+        return json.dumps(get_pagina(
+                busca_por_sequencia(linha['acordes'], generos_key), pagina_tag))
 
     similares = get_similares(acordes, generos_key, id_musica_tag)
 
     return json.dumps(get_pagina(similares, pagina_tag))
 
-def get_similares_por_sequencia(id_seq, generos_key):
-    # filtra para melhor desempenho
-    collection = apply_filtro(musicas.values(), generos_key)
-
-    similares = []
-    for musica in collection:
-        if str(id_seq) in musica.seqs_famosas:
-            similar = {
-                'id_unico_musica' : musica.id_unico_musica,
-                'id_artista' : musica.id_artista,
-                'id_musica' : musica.id_musica,
-                'nome_artista' : musica.nome_artista,
-                'nome_musica' : musica.nome_musica,
-                'popularidade' : musica.popularidade,
-                'acordes' : musica.acordes,
-                'genero' : musica.genero,
-                'url' : musica.url,
-            }
-            similares.append(similar)
-
-    return similares
-
 # Busca por sequência de acordes (regra A): vocabulário exato via índice +
 # bloco contíguo testado com bordas ';' (sem borda, 'a7;d;a' casaria por
-# prefixo em 'A7;D;A7'). Devolve os mesmos campos de
-# get_similares_por_sequencia, na mesma ordem. generos_key filtra por gênero,
-# como apply_filtro fazia na função velha. Sequência vazia devolve [] — sem a
+# prefixo em 'A7;D;A7'). Devolve os mesmos campos do /similares (dict por
+# música), na ordem de apply_filtro. generos_key filtra por gênero, como a
+# função antiga fazia. Sequência vazia devolve [] — sem a
 # guarda, ';;' casaria as músicas de cifra vazia (§2.8 da pesquisa).
 def busca_por_sequencia(tokens, generos_key=None):
     tokens = [token.lower() for token in tokens]
