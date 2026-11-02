@@ -194,7 +194,7 @@ Três restrições que atravessam o plano:
    main.app.run(port=5001)"`, porque o AirPlay ocupa a 5000) cria
    `dados/sequencias.db` sem erro de permissão.
 
-10. [ ] **Frontend mínimo.** `sequencia.js`: remover os 4 objetos hardcoded,
+10. [x] **Frontend mínimo.** `sequencia.js`: remover os 4 objetos hardcoded,
     carregar `GET /sequencias` no início do controller montando
     `{acorde, cor}` para o `df-hex`; formulário acima da lista com campo que
     aceita espaço ou vírgula, `datalist` alimentado por `GET /acordes`, e
@@ -202,11 +202,20 @@ Três restrições que atravessam o plano:
     selecionar a sequência; em 400 exibir a mensagem do servidor (incluindo as
     `sugestoes`). `sequencia.html`: mostrar `total_musicas` em cada bloco; não
     tocar no `ng-hide="music.diferenca.length"` nem no
-    `orderBy:'-popularidade'`.
+    `orderBy:'-popularidade'`. Ajustes finais de tela: busca sem resultado
+    mostra "Nenhuma música tem essa sequência" (sem o botão "Encontrei essas
+    músicas"), e quando o total passa de 100 a área de resultados mostra
+    `mostrando 100 de N` (o total do catálogo, sem filtro de gênero, já que a
+    API pagina de 100 em 100 e não devolve total filtrado).
     **Verificação:** checklist manual no navegador — a página lista as 6 do
     backend com totais; cadastro pela UI funciona e a nova fica selecionada;
     erro de acorde desconhecido aparece com a sugestão; resultados da busca
-    batem com o `curl /similares?sequencia=` correspondente.
+    batem com o `curl /similares?sequencia=` correspondente. Verificado pelo
+    usuário no navegador: lista, busca, cadastro, sugestão clicável, sequência
+    duplicada, campo vazio e filtro de gênero, tudo batendo com a API; os dois
+    ajustes de tela (mensagem de zero resultados e `mostrando 100 de N`) foram
+    conferidos depois contra a API (`Am7,D` → 0; `D,A,Bm,G` → 100 na página 1,
+    total 216).
 
 ## Arquivos afetados
 

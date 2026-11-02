@@ -1,48 +1,58 @@
 angular.module('deciframeApp').controller('SequenciaController', function($http, $window, ngProgressFactory, $anchorScroll, $location, GENEROS) {
-  var sequencia1 = {
-    'index': 1,
-    'acordes': [
-      { 'acorde': 'Bm', 'cor': '#2E1C74' },
-      { 'acorde': 'G',  'cor': '#2E1C74' },
-      { 'acorde': 'D',  'cor': '#2E1C74' },
-      { 'acorde': 'A',  'cor': '#2E1C74' }
-  ]};
-  var sequencia2 = {
-    'index': 1,
-    'acordes': [
-      { 'acorde': 'C',  'cor': '#2E1C74' },
-      { 'acorde': 'G',  'cor': '#2E1C74' },
-      { 'acorde': 'Am', 'cor': '#2E1C74' },
-      { 'acorde': 'F',  'cor': '#2E1C74' }
-  ]};
-  var sequencia3 = {
-    'index': 1,
-    'acordes': [
-      { 'acorde': 'Gm', 'cor': '#2E1C74' },
-      { 'acorde': 'F',  'cor': '#2E1C74' }
-  ]};
-  var sequencia4 = {
-    'index': 1,
-    'acordes': [
-      { 'acorde': 'C',  'cor': '#2E1C74' },
-      { 'acorde': 'C7', 'cor': '#2E1C74' },
-      { 'acorde': 'F',  'cor': '#2E1C74' },
-      { 'acorde': 'Fm', 'cor': '#2E1C74' }
-  ]};
+  var COR_SEQUENCIA = '#2E1C74';
+
+  var montarSequencia = function(linha) {
+    var acordes = [];
+    for (var i = 0; i < linha.acordes.length; i++) {
+      acordes.push({ 'acorde': linha.acordes[i], 'cor': COR_SEQUENCIA });
+    }
+    return {
+      'id': linha.id,
+      'acordes': acordes,
+      'total_musicas': linha.total_musicas
+    };
+  };
+
   var vm = this;
   vm.sequenciasFamosas = [];
-  vm.sequenciasFamosas.push(sequencia1);
-  vm.sequenciasFamosas.push(sequencia2);
-  vm.sequenciasFamosas.push(sequencia3);
-  vm.sequenciasFamosas.push(sequencia4);
+  vm.acordesDisponiveis = [];
+  vm.novaSequencia = "";
+  vm.erroCadastro = null;
   vm.minhaSequencia = {};
   vm.isSearching = false;
   vm.showSearchResultsCount = false;
   vm.esfigeSpeech =  "";
   vm.musics = [];
+  vm.totalMusicas = 0;
+  vm.temMaisPaginas = false;
   vm.generos = GENEROS;
   vm.meuGenero = "";
   vm.progressbar = ngProgressFactory.createInstance();
+
+  vm.carregarSequencias = function(idSelecionado) {
+    $http.get('/sequencias')
+      .success(function(data) {
+        vm.sequenciasFamosas = [];
+        for (var i = 0; i < data.length; i++) {
+          vm.sequenciasFamosas.push(montarSequencia(data[i]));
+        }
+        if (idSelecionado) {
+          for (var j = 0; j < vm.sequenciasFamosas.length; j++) {
+            if (vm.sequenciasFamosas[j].id === idSelecionado) {
+              vm.pesquisarPorSequencia(vm.sequenciasFamosas[j]);
+              break;
+            }
+          }
+        }
+      });
+  };
+
+  vm.carregarAcordes = function() {
+    $http.get('/acordes')
+      .success(function(data) {
+        vm.acordesDisponiveis = data;
+      });
+  };
 
   vm.temAcorde = function(acorde) {
     if (vm.minhaSequencia.acordes) {
@@ -68,6 +78,8 @@ angular.module('deciframeApp').controller('SequenciaController', function($http,
     vm.esfigeSpeech = "Procurando músicas com base na sequencia...";
     vm.isSearching = true;
     vm.musics = [];
+    vm.totalMusicas = 0;
+    vm.temMaisPaginas = false;
 
     var apiUrl = "";
     var searchString = "similares?sequencia=".concat(createChordsString(vm.minhaSequencia.acordes));
@@ -77,10 +89,21 @@ angular.module('deciframeApp').controller('SequenciaController', function($http,
     $http.get(apiUrl.concat(searchString))
       .success(function(data) {
         vm.progressbar.complete();
-        vm.esfigeSpeech = "Encontrei essas músicas";
         vm.isSearching = false;
-        vm.showSearchResultsCount = true;
         vm.musics = data;
+        if (!data.length) {
+          vm.esfigeSpeech = "Nenhuma música tem essa sequência";
+          vm.showSearchResultsCount = false;
+          return;
+        }
+        vm.esfigeSpeech = "Encontrei essas músicas";
+        vm.showSearchResultsCount = true;
+        // total_musicas do catálogo não considera o filtro de gênero; sem
+        // filtro, é o total real e a API devolve no máximo 100 por página
+        if (vm.meuGenero === "" || vm.meuGenero === null) {
+          vm.totalMusicas = vm.minhaSequencia.total_musicas || data.length;
+          vm.temMaisPaginas = vm.totalMusicas > data.length;
+        }
       })
       .error(function(data) {
         vm.esfigeSpeech = "Ops! Algo errado.";
@@ -88,6 +111,49 @@ angular.module('deciframeApp').controller('SequenciaController', function($http,
         vm.showSearchResultsCount = false;
       });
   }
+
+  vm.cadastrarSequencia = function() {
+    vm.erroCadastro = null;
+    var tokens = (vm.novaSequencia || "").split(/[\s,;]+/);
+    var acordes = [];
+    for (var i = 0; i < tokens.length; i++) {
+      if (tokens[i]) {
+        acordes.push(tokens[i]);
+      }
+    }
+    if (!acordes.length) {
+      vm.erroCadastro = { 'erro': 'sequencia_vazia' };
+      return;
+    }
+    $http.post('/sequencias', { 'acordes': acordes })
+      .success(function(data) {
+        vm.novaSequencia = "";
+        vm.carregarSequencias(data.id);
+      })
+      .error(function(data) {
+        if (data && data.erro) {
+          vm.erroCadastro = data;
+        } else {
+          vm.erroCadastro = { 'erro': 'falha' };
+        }
+      });
+  };
+
+  vm.limparErro = function() {
+    vm.erroCadastro = null;
+  };
+
+  vm.aplicarSugestao = function(item, sugestao) {
+    // troca no texto do formulário só o token recusado, preservando o resto
+    var partes = (vm.novaSequencia || "").split(/([\s,;]+)/);
+    for (var i = 0; i < partes.length; i++) {
+      if (partes[i] === item.acorde) {
+        partes[i] = sugestao;
+      }
+    }
+    vm.novaSequencia = partes.join("");
+    vm.erroCadastro = null;
+  };
 
   vm.limparPesquisa = function() {
     vm.minhaSequencia = {};
@@ -102,4 +168,7 @@ angular.module('deciframeApp').controller('SequenciaController', function($http,
     vm.showSearchResultsCount = false;
     $("body").animate({scrollTop: $("#results").offset().top}, "slow");
   };
+
+  vm.carregarSequencias();
+  vm.carregarAcordes();
 });

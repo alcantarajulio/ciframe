@@ -3,8 +3,41 @@
     <div class="col-sm-6 col-md-4 viewWindow-panel viewWindow-panel-C">
       <div class="viewWindow-panel-container">
         <h4 class="text-center">Aponte uma sequencia de acordes</h4>
+        <form ng-submit="Sequencia.cadastrarSequencia()">
+          <div class="form-group">
+            <input type="text" class="form-control" list="acordes-sequencia"
+              placeholder="Ex.: C G Am F" ng-model="Sequencia.novaSequencia"
+              ng-change="Sequencia.limparErro()">
+            <datalist id="acordes-sequencia">
+              <option ng-repeat="acorde in Sequencia.acordesDisponiveis" value="{{acorde}}"></option>
+            </datalist>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Cadastrar sequência</button>
+        </form>
+        <div class="alert alert-danger" ng-if="Sequencia.erroCadastro">
+          <p ng-if="Sequencia.erroCadastro.erro === 'acorde_desconhecido'">
+            Acordes fora do dataset. Clique numa sugestão para corrigir:
+          </p>
+          <ul ng-if="Sequencia.erroCadastro.erro === 'acorde_desconhecido'">
+            <li ng-repeat="item in Sequencia.erroCadastro.acordes">
+              <strong>{{item.acorde}}</strong>
+              <span ng-if="item.sugestoes.length">
+                &rarr;
+                <button type="button" class="btn btn-default btn-xs"
+                  ng-repeat="sugestao in item.sugestoes"
+                  ng-click="Sequencia.aplicarSugestao(item, sugestao)">{{sugestao}}</button>
+              </span>
+              <span ng-if="!item.sugestoes.length">&mdash; sem grafia parecida no dataset</span>
+            </li>
+          </ul>
+          <p ng-if="Sequencia.erroCadastro.erro === 'sequencia_vazia'">Digite pelo menos um acorde.</p>
+          <p ng-if="Sequencia.erroCadastro.erro === 'corpo_invalido'">Não foi possível ler a sequência.</p>
+          <p ng-if="Sequencia.erroCadastro.erro === 'falha'">Não foi possível cadastrar agora. Tente de novo.</p>
+        </div>
         <div class="acordes-container" ng-repeat='sequencia in Sequencia.sequenciasFamosas' ng-click="Sequencia.pesquisarPorSequencia(sequencia)">
           <df-hex acorde="{{acordeon.acorde}}" acorde-color="{{acordeon.cor}}" acorde-checked="Sequencia.temAcorde(acordeon)" ng-repeat="acordeon in sequencia.acordes"></df-hex>
+          <br style="clear: both;">
+          <p class="text-center">{{sequencia.total_musicas}} músicas</p>
         </div>
         <br style="clear: both;">
         <button class="search-results-count" ng-if="Sequencia.showSearchResultsCount" ng-click="Sequencia.goToResults()">
@@ -18,6 +51,9 @@
       <div class="viewWindow-panel-container">
         <div ng-show="Sequencia.minhaSequencia.acordes.length">
           <h4>{{Sequencia.esfigeSpeech}}</h4>
+          <p class="text-muted" ng-if="Sequencia.temMaisPaginas">
+            mostrando {{Sequencia.musics.length}} de {{Sequencia.totalMusicas}}
+          </p>
           <div class="row">
             <div class="col-md-3">
               <div class="form-group">
