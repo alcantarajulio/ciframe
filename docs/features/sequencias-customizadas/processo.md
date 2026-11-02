@@ -4,6 +4,11 @@ Registro de como as fases foram conduzidas, o que deu errado no caminho e o
 que eu mudaria nos comandos do RePPIT. As sessões exportadas do opencode estão
 em [`sessoes/`](sessoes/).
 
+Demonstração no navegador: [`demo.gif`](demo.gif) (vídeo original em
+[`demo.mov`](demo.mov)).
+
+![demo](demo.gif)
+
 ## Modelo por fase
 
 O enunciado pede BigPickle. Usei BigPickle onde deu; nas outras fases o limite

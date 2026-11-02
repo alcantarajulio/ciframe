@@ -1,0 +1,1370 @@
+{
+  "info": {
+    "id": "ses_e6729cda6ffem0wWPxHiCvsZXE",
+    "projectID": "e91209c15df867a9f10fd38412db847493bba53b",
+    "agent": "build",
+    "model": {
+      "id": "kimi-k3",
+      "providerID": "opencode-go",
+      "variant": "default"
+    },
+    "cost": 0,
+    "tokens": {
+      "input": 61170,
+      "output": 11540,
+      "reasoning": 11922,
+      "cache": {
+        "read": 395456,
+        "write": 0
+      }
+    },
+    "outcome": "succeeded",
+    "time": {
+      "created": 1793565536898,
+      "updated": 1793566974018,
+      "busy": 1793566887469,
+      "idle": 1793566974026,
+      "viewed": 1793566974026
+    },
+    "title": "Plano de sequências customizadas",
+    "location": {
+      "directory": "/Users/julio/Documents/26.2/ciframe"
+    }
+  },
+  "messages": [
+    {
+      "id": "msg_198ddb385001Fiaw0xsD8cqtFp",
+      "time": {
+        "created": 1793566028693
+      },
+      "text": "1. Clarify the code change scope, constraints, and timelines before writing anything down.\n2. Open `@templates/design_doc_template.md`, mirror its structure, and draft the plan as a `.md` file in `desired_location`.\n3. Populate current context, requirements, design decisions, and implementation plan with concise, actionable bullets.\n4. Note testing, observability, rollout, and security sections only if they influence this change; leave sections blank when they do not apply.\n5. Do not actually implement any change. Only create a plan .md reflecting what needs to be implemented.\n6. Only make changes that are directly requested. Keep solutions simple and focused.\n\n1. Clarify the code change scope, constraints, and timelines before writing anything down.\n2. Open `@templates/design_doc_template.md`, mirror its structure, and draft the plan as a `.md` file in `desired_location`.\n3. Populate current context, requirements, design decisions, and implementation plan with concise, actionable bullets.\n4. Note testing, observability, rollout, and security sections only if they influence this change; leave sections blank when they do not apply.\n5. Do not actually implement any change. Only create a plan .md reflecting what needs to be implemented.\n6. Only make changes that are directly requested. Keep solutions simple and focused.\n\nle docs/features/sequencias-customizadas/02-proposal.md, a adr 0002 e o template 03-plan.md. o comando fala de um design_doc_template mas ele nao ta instalado, usa o 03-plan.md mesmo. algumas coisas que eu quero no plano: 1. o primeiro passo tem que ser gerar o gabarito da regressao com o codigo atual, antes de mexer no main.py (os ids que as 6 sequencias devolvem hoje, salvos num arquivo), pra depois o codigo novo ser comparado com ele. 2. passos pequenos, e cada passo com um jeito de verificar (comando ou teste). 3. testes com unittest da stdlib, sem dependencia nova. 4. definicao de pronto com criterio que da pra checar cadastro sobrevive a docker rm + docker run com volume, etc. nao implementa nada ainda, so escreve o 03-plan.md e apaga o bloco de instrucao.",
+      "files": [],
+      "agents": [],
+      "type": "user"
+    },
+    {
+      "id": "msg_198ddb3a0001MlFAvgNo1fP4NV",
+      "time": {
+        "created": 1793566028714,
+        "streamed": 1793566033398,
+        "completed": 1793566033489
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "kimi-k3",
+        "providerID": "opencode-go",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "Let me parse what the user is asking. They want me to:\n\n1. Read `docs/features/sequencias-customizadas/02-proposal.md`, ADR 0002 (`docs/adr/0002-...`), and the template `03-plan.md` (which apparently is at `templates/03-plan.md` or similar — they said the command mentions a `design_doc_template` but it's not installed, so use `03-plan.md` instead).\n2. Write a plan as a `.md` file in the desired location (probably `docs/features/sequencias-customizadas/03-plan.md`).\n3. Requirements for the plan content:\n   - First step: generate regression baseline (\"gabarito\") with current code, before touching `main.py` — the IDs that the 6 sequences return today, saved to a file, to compare new code against it later.\n   - Small steps, each with a verification method (command or test).\n   - Tests using stdlib `unittest`, no new dependencies.\n   - Definition of done with verifiable criteria, e.g., data registration survives `docker rm` + `docker run` with volume.\n4. Don't implement anything — just write `03-plan.md` and delete the instruction block.\n\nThe user writes in Portuguese. I should respond in Portuguese. The plan file itself — probably should be in Portuguese too, since the user is Brazilian and the proposal is likely in Portuguese. Let me read the files first.\n\nLet me find the files:\n- `docs/features/sequencias-customizadas/02-proposal.md`\n- ADR 0002 in `docs/adr/`\n- The `03-plan.md` template — need to find it. Maybe in `templates/` directory.\n\nLet me read these files in parallel.",
+          "native": {
+            "reasoningField": "reasoning_content"
+          },
+          "time": {
+            "created": 1793566030025,
+            "completed": 1793566033366
+          }
+        },
+        {
+          "type": "text",
+          "text": "Vou ler os arquivos de contexto primeiro."
+        },
+        {
+          "type": "tool",
+          "id": "read_0_7cf0139d",
+          "name": "read",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "path": "docs/features/sequencias-customizadas/02-proposal.md"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Read file docs/features/sequencias-customizadas/02-proposal.md, lines 1-259\n1: # Proposta — Sequências de Acordes Customizadas\n2: \n3: ## Abordagem escolhida\n4: \n5: ### Algoritmo de matching\n6: \n7: Uma música é compatível com a sequência `S = (t1 … tn)` se, e somente se, as duas\n8: condições valerem, comparando tokens sem diferenciar maiúsculas de minúsculas:\n9: \n10: 1. **Bloco contíguo.** `(t1 … tn)` aparece como sequência contígua de tokens na\n11:    cifra da música, sobre os tokens que `limpa_cifra` já produziu\n12:    (`main.py:11-23`, aplicado em `main.py:49-61`). Ordem e adjacência contam;\n13:    repetição de acorde na música não invalida nada.\n14: 2. **Vocabulário exato.** Todo acorde da música pertence ao conjunto de `S`.\n15: \n16: É exatamente a regra que gerou a coluna `SEQ_FAMOSA`\n17: (`scripts/generate_data_set.py:7-24`), reproduzida em 514 de 514 músicas, zero\n18: divergência nos dois sentidos (`01-research.md` §2.1). Ela vale para **todas** as\n19: sequências, antigas e novas: essa é a condição para que as 6 originais devolvam o\n20: mesmo conjunto de hoje sem nenhum caso especial no código.\n21: \n22: O que a regra **não** faz, e precisa estar dito na proposta porque é uma\n23: limitação de produto, não um bug: ela não pergunta \"a progressão aparece na\n24: música?\", e sim \"a música inteira usa somente esses acordes, e eles aparecem\n25: nessa ordem\". Como a média é 7,8 acordes distintos por música, só 19.923 das\n26: 67.585 (29,5%) têm ≤ 4 acordes distintos e podem, em princípio, casar uma\n27: sequência de 4 acordes. As 10 progressões populares medidas devolveram de 10 a\n28: 278 músicas (§2.5), então sequência nova não devolve zero em geral — mas uma\n29: sequência de vocabulário incomum devolve. É o preço de manter a semântica do app.\n30: \n31: **Implementação.** A condição (2) permite transformar o matching em um lookup,\n32: o que resolve a única objeção real de custo que existia contra esta proposta:\n33: \n34: - no load do CSV, cada música ganha duas estruturas derivadas: a cifra\n35:   normalizada com bordas, `cifra_borda = ';' + ';'.join(tokens em minúsculas) +\n36:   ';'`, e entra no índice `vocabulario -> [músicas]`, chaveado por\n37:   `frozenset(tokens em minúsculas de musica.acordes)`;\n38: - para uma sequência `S`, `seq_vocab = frozenset(S em minúsculas)` e\n39:   `seq_borda = ';' + ';'.join(S em minúsculas) + ';'`. Os candidatos são\n40:   `indice.get(seq_vocab)`, e o match é `seq_borda in musica.cifra_borda`.\n41:   Como o bloco contíguo implica `vocabulário de S ⊆ vocabulário da música`, e o\n42:   índice já garante a inclusão contrária, o lookup é a regra A inteira.\n43: \n44: Medido nesta máquina (Python 3.9.6, mesmo CSV): 39.385 vocabulários distintos,\n45: índice construído em 1,3 s no boot, ~48 MB de memória adicional, **0,15 ms de\n46: mediana e 0,42 ms no pior caso por sequência**, com 514/514 preservado para as 6.\n47: Para comparação, a implementação literal do gerador custa 87 ms por sequência\n48: (522 ms para as 6), e a varredura com poda por vocabulário custa 2,8 ms. Os\n49: 405 ms do §1.4 são uma passada com as 6 sequências, não o custo de uma; medido\n50: por sequência, o número que importa é o de cima. O boot cresce junto: o parse do\n51: CSV leva ~4,3 s nesta máquina e a construção do índice ~1,3 s, então ~5,6 s até\n52: a primeira resposta. Se a memória incomodar, a varredura com poda por vocabulário\n53: (2,8 ms, +45 MB) ou por tamanho do vocabulário (64 ms, sem memória extra) são\n54: substitutas diretas — todas produzem o mesmo conjunto.\n55: \n56: **Bordas, e não `in` puro.** A comparação do gerador é\n57: `';'.join(seq).lower() in ';'.join(cifra).lower()`, sem delimitador nas pontas.\n58: Sob vocabulário exato isso coincide com o token a token nas 6 (§2.1), mas não em\n59: geral: com a sequência `A7 D A`, a cifra `A7;D;A7` casa por prefixo\n60: (`'a7;d;a' in 'a7;d;a7'`) e produz **17** matches em vez de **1** — 16 falsos\n61: positivos medidos. As bordas `;` eliminam o artefato, e as 6 continuam 514/514.\n62: \n63: **Ordem, rotação e caixa.** Rotação é sequência diferente: `Bm G D A` marca 199\n64: músicas e `D A Bm G` marca 216 (§2.7), então tratá-las como a mesma entrada\n65: faria a busca devolver um conjunto que o usuário não digitou. A chave de\n66: identidade é a tupla na ordem digitada, em minúsculas, unida por `;`\n67: (`bm;g;d;a` ≠ `d;a;bm;g`). Minúsculas são intencionais: o matching já é\n68: insensível a caixa (o gerador baixa tudo, `generate_data_set.py:12`), então\n69: `A7M` e `A7m` produziriam resultados idênticos e não há razão para duas linhas —\n70: as 151 grafias que colidem (§1.4) colidem também no resultado. `acordes` é\n71: guardado como foi digitado, para exibição.\n72: \n73: **Validação de entrada.** Rejeita-se **apenas** o que é vazio: lista vazia,\n74: tokens em branco ou só separadores → 400. Um acorde é válido (`C` devolve 17\n75: músicas e `Am` devolve 2, §2.8, reconferido). Acorde fora do vocabulário do\n76: dataset → 400 com o token recusado, validando contra o set `acordes`\n77: (`main.py:39`, 6.653 tokens, exposto em `main.py:162-164`), comparação exata;\n78: se existir um token igual ignorando a caixa, a resposta traz `sugestao`. Não se\n79: usa lista curada de acordes: ela recusaria grafias que o CSV usa (`7M`, `maj7`,\n80: `º`, `(9)`, inversões) e 3.045 tokens aparecem em uma única música (§2.8). O\n81: critério é \"existe no dataset\", não \"é um acorde bonito\" — e o próprio set tem\n82: 44 tokens que não são acordes, custo aceito e documentado.\n83: \n84: ### Banco de dados\n85: \n86: `sqlite3` da biblioteca padrão, arquivo único, sem dependência nova em\n87: `requirements.txt` e sem serviço extra — compatível com o container único de\n88: `docs/adr/0001-local-only-docker-deploy.md:9-16`. Só o **catálogo de sequências**\n89: vai para o banco; músicas, gêneros e acordes continuam vindo do CSV em memória,\n90: como hoje (`main.py:37-98`).\n91: \n92: - Caminho: `SEQUENCIAS_DB`, default `/app/dados/sequencias.db`; `makedirs` do\n93:   diretório no boot.\n94: - Volume nomeado documentado no README/AGENTS:\n95:   `docker run -v deciframe-dados:/app/dados -p 8080:8080 ciframe`. O\n96:   `Dockerfile` ganha `RUN mkdir -p /app/dados` e `VOLUME [\"/app/dados\"]`;\n97:   `dados/` entra no `.dockerignore` para que `COPY . .` não asse um banco de\n98:   desenvolvimento dentro da imagem. Sem o volume, o arquivo sobrevive a\n99:   `restart` mas não a `docker rm` nem a rebuild (§3.2).\n100: - `PRAGMA journal_mode=WAL`, `PRAGMA busy_timeout=5000`, `foreign_keys=ON`.\n101:   Conexão por request (`sqlite3` não deve ser compartilhado entre threads).\n102:   Escrita serializada é irrelevante aqui: o gunicorn atual roda 1 worker e 1\n103:   thread (§3.1) e o catálogo é aberto mas minúsculo.\n104: - Seed das 6 no boot, depois do load do CSV, com `INSERT` idempotente apoiado no\n105:   `UNIQUE(chave)` — não em `SELECT` antes de `INSERT`, que perde a corrida se o\n106:   número de workers mudar. As 6 entram com a ordem atual, porque é a ordem que o\n107:   matching usa: `Bm G D A`, `C G Am F`, `Em G`, `C A7 Dm G7`, `Gm F`,\n108:   `C C7 F Fm`.\n109: - Versão do esquema em `PRAGMA user_version` (1), conferida no boot: não há\n110:   framework de migração e não vale a pena introduzir um para uma tabela.\n111: \n112: ### Esquema de dados (alto nível)\n113: \n114: ```\n115: sequencias\n116:   id         INTEGER PRIMARY KEY AUTOINCREMENT\n117:   chave      TEXT NOT NULL UNIQUE      -- acordes na ordem, em minúsculas, ';'-unidos\n118:   acordes    TEXT NOT NULL             -- JSON array na ordem digitada (exibição)\n119:   origem     TEXT NOT NULL             -- 'seed' | 'usuario'\n120:   criado_em  TEXT NOT NULL             -- ISO 8601 UTC\n121: ```\n122: \n123: Uma tabela, sem tabela de junção e sem resultado materializado: o matching custa\n124: 0,15 ms e não precisa de cache. Nada é migrado do CSV. As 6 sementes têm\n125: `origem='seed'` e chaves `bm;g;d;a`, `c;g;am;f`, `em;g`, `c;a7;dm;g7`, `gm;f`,\n126: `c;c7;f;fm`.\n127: \n128: ### API\n129: \n130: Tudo continua saindo como `json.dumps(...)` e `Content-Type: text/html`\n131: (`main.py:142`, `197`, `201`), inclusive as respostas de erro — nada de\n132: `jsonify`.\n133: \n134: - `GET /sequencias` → `[{id, acordes, origem, total_musicas}]`. `total_musicas` é\n135:   calculado na hora (0,15 ms por linha); com centenas de sequências isso precisa\n136:   de cache, e é aí que a decisão volta — ver escopo fora.\n137: - `POST /sequencias` com `{\"acordes\": [\"Bm\",\"G\",\"D\",\"A\"]}`:\n138:   - 201 `{\"id\": 7, \"acordes\": [...], \"existente\": false, \"total_musicas\": 199}`\n139:     quando cria;\n140:   - 200 `{\"id\": 0, \"existente\": true, \"total_musicas\": 199}` quando a chave já\n141:     existe (idempotente, sem 409: o catálogo é anônimo e \"já existe, use esta\" é\n142:     mais útil que um conflito para explicar);\n143:   - 400 `{\"erro\": \"sequencia_vazia\"}`;\n144:   - 400 `{\"erro\": \"acorde_desconhecido\", \"acordes\": [{\"acorde\": \"cb\",\n145:     \"sugestao\": null}]}`;\n146:   - 400 `{\"erro\": \"corpo_invalido\"}` para corpo que não é JSON com `acordes`.\n147: - `GET /similares?sequencia=Bm,G,D,A` mantém a forma atual: separa por vírgula,\n148:   faz `strip` e descarta token vazio, baixa a caixa e resolve pela `chave`. Se\n149:   não existir, devolve `[]` com 200, como hoje (§2.8) — a busca não é o\n150:   cadastro e o contrato antigo fica preservado. A resposta continua com os\n151:   mesmos campos de `main.py:210-220`, a mesma ordem de hoje (a iteração de\n152:   `get_similares_por_sequencia` sobre `apply_filtro`, `main.py:203-223` e\n153:   `main.py:266-272`) e o mesmo corte de `get_pagina` (`main.py:226-228`). A\n154:   única mudança de parâmetro é a validação de `pagina` (inteiro ≥ 1; hoje\n155:   `pagina=abc` derruba com 500, `main.py:227`).\n156: \n157: Efeitos colaterais aceitos e mensuráveis: `Bm, G, D, A` (com espaço) passa a\n158: funcionar (hoje devolve 0) e `Bm,G,D,A,` continua funcionando. Nada mais muda no\n159: comportamento observável do endpoint — nem a ordem, nem o conteúdo da página 1;\n160: o fato de a ordem variar entre processos (`PYTHONHASHSEED`, §2.4) continua\n161: existindo, porque corrigi-lo é decisão de produto, não pré-requisito desta\n162: feature.\n163: \n164: ### Frontend\n165: \n166: `static/assets/js/controllers/sequencia.js` perde os quatro objetos hardcoded\n167: (`sequencia.js:2-37`) e carrega `GET /sequencias` no início do controller,\n168: montando `{acorde, cor}` a partir de `acordes` para o `df-hex` que o template já\n169: usa (`sequencia.html:6-8`). Isso corrige a divergência 4-vs-6 do §4 e faz a tela\n170: refletir o catálogo.\n171: \n172: Cadastro na mesma página, acima da lista: um campo de texto que aceita `Bm G D A`\n173: (espaço ou vírgula), um `datalist` alimentado por `GET /acordes` para evitar\n174: digitação livre, e um botão que faz `POST /sequencias`. Em 201/200 a lista é\n175: recarregada e a sequência nova é selecionada; em 400 a mensagem do servidor é\n176: exibida (sequência vazia, acorde desconhecido e a sugestão de grafia). Mostrar o\n177: `total_musicas` no bloco de cada sequência é o que torna o efeito da regra A\n178: compreensível para quem cadastra.\n179: \n180: Resultados ficam intocados: o controller continua sem enviar `pagina`\n181: (`sequencia.js:73-76`) e o template continua com `orderBy:'-popularidade'`\n182: (`sequencia.html:42`). A limitação atual de a UI mostrar só 100 dos 199/296\n183: resultados (§2.4) permanece — conhecida, herdada e declarada fora do escopo. Um\n184: cuidado ao mexir no template: `ng-hide=\"music.diferenca.length\"`\n185: (`sequencia.html:43`) funciona por acidente, porque `diferenca` não existe na\n186: resposta de sequência; não remover a expressão.\n187: \n188: ## Alternativas consideradas e descartadas\n189: \n190: **Regra C (bloco contíguo, sem vocabulário exato) para as sequências novas, com a\n191: tag congelada para as 6.** É a alternativa que discorda da decisão de matching e\n192: merece registro porque o argumento é bom: a condição (2) transforma a busca em\n193: um filtro sobre o vocabulário da música, não sobre a progressão, e é por isso que\n194: 7.170 músicas têm o bloco contíguo sem a tag (§1.3); com regra C, `Em Am D G` sai\n195: de 10 para 443 e `G D Em C` de 252 para 1.141 (§2.5). Descartada porque exigiria\n196: duas semânticas no mesmo endpoint — as 6 continuariam na tag e as novas em C —,\n197: com um degrau visível entre sequências equivalentes (a mesma `Bm G D A` daria 199\n198: como semente e 667 como sequência nova), e porque o enunciado trata a regressão\n199: das 6 como o contrato do produto, não como um detalhe de compatibilidade. Se a\n200: regra A se mostrar estreita demais em uso, é esta a alternativa a retomar, e o\n201: lugar seria um campo por sequência dizendo qual regra vale — explicitamente fora\n202: do escopo agora.\n203: \n204: **Catálogo aberto com matching materializado no cadastro.** As sequências\n205: guardariam os ids das músicas casadas numa tabela de junção, calculados no\n206: `POST`; a busca viraria leitura de algumas centenas de ids e o\n207: `POST` devolveria `total_musicas` sem recalcular. Fazia sentido quando o custo de\n208: matching era estimado em ~0,4 s por consulta. A medição derrubou a premissa\n209: (0,15 ms): a materialização adicionaria latência de escrita, uma tabela derivada\n210: para invalidar quando o CSV muda e um estado que pode ficar velho em silêncio,\n211: sem ganho de leitura perceptível. Descartada. Se o catálogo crescer para milhares\n212: de sequências, o caminho é cachear `total_musicas`, não materializar os matches.\n213: \n214: **Dedupe por rotação (chave = menor rotação) e catálogo aberto a acordes fora do\n215: dataset.** A primeira funde `D A Bm G` com `Bm G D A`, que devolvem conjuntos\n216: diferentes (216 vs 199, união 240, §2.7); a chave deixaria de refletir o que o\n217: matching faz, e o usuário receberia o resultado de outro ponto de partida sem\n218: entender. A segunda aceitaria um acorde que, sob a regra A, nunca pode casar\n219: (vocabulário exato não contém token inexistente) e criaria linhas permanentemente\n220: inertes; o 400 com sugestão resolve o erro de digitação no momento em que ele\n221: acontece.\n222: \n223: ## Escopo explícito\n224: \n225: **Dentro do escopo:**\n226: \n227: - Tabela `sequencias` em SQLite, criada e semeada no boot, com volume nomeado\n228:   documentado no README e no AGENTS.\n229: - Regra A como regra única de matching, com índice por vocabulário construído no\n230:   load e teste de regressão 514/514 contra a coluna `SEQ_FAMOSA`.\n231: - `GET /sequencias`, `POST /sequencias` e `GET /similares?sequencia=` resolvido\n232:   pelo catálogo, preservando `json.dumps` e `text/html`.\n233: - Validação: vazio → 400, acorde fora do dataset → 400, 1 acorde válido,\n234:   `pagina` validada.\n235: - `#/porsequencia` com catálogo do backend, formulário de cadastro e contagem\n236:   por sequência.\n237: - ADR `docs/adr/0002-persist-custom-sequences.md`.\n238: \n239: **Fora do escopo (e por quê):**\n240: \n241: - Campo harmônico, transposição e matching por graus (`NCIFRA`): a decisão está\n242:   adiada no §2.9 e muda a unidade de comparação, não só o armazenamento; aplicá-la\n243:   às 6 quebraria a regressão.\n244: - Normalização de acordes (enarmonia, tríade, inversão): nenhuma existe no\n245:   runtime e qualquer uma muda o que é \"o mesmo acorde\" — mexer nisso junto com a\n246:   persistência tornaria impossível saber qual mudança causou qual diferença.\n247: - Editar, renomear, excluir ou moderar sequências: o catálogo é append-only e\n248:   anônimo nesta fase; exclusão e rate limit são o próximo problema, não este.\n249: - Paginar a UI (\"carregar mais\") e reordenar os resultados por popularidade no\n250:   servidor: não é exigência do enunciado e muda comportamento observável de um\n251:   endpoint que hoje serve à tela. A limitação de a UI mostrar 100 de 199/296\n252:   (§2.4) fica documentada; a validação de `pagina` entra só para o request não\n253:   morrer com 500.\n254: - Migrar músicas, gêneros ou a coluna `SEQ_FAMOSA` para o banco: fixado no\n255:   enunciado e desnecessário — a coluna fica no CSV como oráculo dos testes.\n256: - Trocar `json.dumps` por `jsonify` ou corrigir o `Content-Type`: mudança de\n257:   contrato, não limpeza.\n258: - Reescrever o AngularJS 1.4.9 ou o layout da página: o ADR 0003 libera tocar no\n259:   frontend quando a tarefa exige, e esta exige o mínimo."
+              }
+            ],
+            "metadata": {
+              "truncated": false
+            }
+          },
+          "time": {
+            "created": 1793566032754,
+            "ran": 1793566033372,
+            "completed": 1793566033422
+          }
+        },
+        {
+          "type": "tool",
+          "id": "glob_1_6cebacc5",
+          "name": "glob",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "pattern": "docs/adr/*.md"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "/Users/julio/Documents/26.2/ciframe/docs/adr/0002-persist-custom-sequences.md\n/Users/julio/Documents/26.2/ciframe/docs/adr/0001-local-only-docker-deploy.md\n/Users/julio/Documents/26.2/ciframe/docs/adr/0003-lift-frontend-freeze.md"
+              }
+            ],
+            "metadata": {
+              "count": 3,
+              "truncated": false
+            }
+          },
+          "time": {
+            "created": 1793566032977,
+            "ran": 1793566033379,
+            "completed": 1793566033464
+          }
+        },
+        {
+          "type": "tool",
+          "id": "glob_2_b21b93e2",
+          "name": "glob",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "pattern": "**/03-plan.md"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "/Users/julio/Documents/26.2/ciframe/docs/features/sequencias-customizadas/03-plan.md"
+              }
+            ],
+            "metadata": {
+              "count": 1,
+              "truncated": false
+            }
+          },
+          "time": {
+            "created": 1793566033166,
+            "ran": 1793566033392,
+            "completed": 1793566033458
+          }
+        }
+      ],
+      "snapshot": {
+        "start": "516e82ffacf6f5c12956d8b05dc8f77cfedf1f94",
+        "end": "516e82ffacf6f5c12956d8b05dc8f77cfedf1f94",
+        "files": []
+      },
+      "finish": "tool-calls",
+      "rawFinish": "tool_calls",
+      "cost": 0,
+      "tokens": {
+        "input": 7665,
+        "output": 137,
+        "reasoning": 364,
+        "cache": {
+          "read": 1600,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_198ddc662001BA24E7bukfc6jz",
+      "time": {
+        "created": 1793566033514,
+        "streamed": 1793566041488,
+        "completed": 1793566041508
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "kimi-k3",
+        "providerID": "opencode-go",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "Now let me read the ADR 0002 and the existing 03-plan.md (which is actually the template per the user).",
+          "native": {
+            "reasoningField": "reasoning_content"
+          },
+          "time": {
+            "created": 1793566038624,
+            "completed": 1793566041481
+          }
+        },
+        {
+          "type": "tool",
+          "id": "read_0_fc8a6b02",
+          "name": "read",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "path": "docs/adr/0002-persist-custom-sequences.md"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Read file docs/adr/0002-persist-custom-sequences.md, lines 1-50\n1: # Introduzir SQLite, com arquivo em volume nomeado, para o catálogo de sequências\n2: \n3: O catálogo de sequências \"famosas\" sempre viveu em dois lugares que não são um\n4: banco: um `dict` de seis entradas no backend (`main.py:40-45`) e quatro objetos\n5: literais no controller Angular (`sequencia.js:2-37`), com as seis tags\n6: correspondentes pré-computadas na coluna `SEQ_FAMOSA` do CSV. A feature nova\n7: exige o contrário disso: qualquer visitante, sem login, pode cadastrar uma\n8: sequência, e o catálogo tem de sobreviver a reinícios do servidor e crescer sem\n9: novo deploy. O projeto não tinha banco, ORM, migração nem escrita em disco em\n10: nenhum ponto do backend — `main.py` só lê `data/top/dataset_final.csv` no import\n11: e mantém músicas, gêneros e acordes em memória.\n12: \n13: Decidimos usar `sqlite3` da biblioteca padrão, com um arquivo único em\n14: `/app/dados/sequencias.db` montado a partir de um volume nomeado, e persistir\n15: **apenas** o catálogo de sequências. Músicas, gêneros e acordes continuam vindo\n16: do CSV em memória, como hoje. A escolha segue de perto o ADR 0001: nada de\n17: serviço auxiliar, nada de rede, nada de dependência nova em `requirements.txt` —\n18: o módulo `_sqlite3` já existe na imagem `python:3.9-slim` (verificado, SQLite\n19: 3.46.1) e o container continua sendo um só. SQLite dá o que o catálogo precisa e\n20: um arquivo JSON não dá sem código: transações, um `UNIQUE` que resolve\n21: \"sequência duplicada\" com garantia mesmo sob concorrência (em vez de um `SELECT`\n22: antes do `INSERT` que perde a corrida quando o número de workers mudar) e\n23: consultas por chave sem reescrever o arquivo inteiro a cada cadastro. Um\n24: Postgres ou MySQL em outro container resolveria o mesmo problema criando um\n25: segundo serviço, uma rede e um volume a mais, o que contradiz o container único\n26: do ADR 0001 para um catálogo que deve ter dezenas de linhas.\n27: \n28: O matching **não** é materializado no banco. A regra escolhida (bloco contíguo\n29: com vocabulário exato, a mesma que gerou a tag) permite indexar as músicas pelo\n30: conjunto de acordes no próprio load do CSV, e uma busca passa a custar 0,15 ms\n31: de mediana por sequência, contra ~87 ms da implementação literal do gerador —\n32: os ~400 ms medidos na pesquisa são uma passada com as 6 sequências juntas, não o\n33: custo de uma consulta. Isso mantém o banco\n34: com uma única tabela, sem estado derivado para invalidar quando o CSV muda — que\n35: é justamente o tipo de inconsistência silenciosa que este projeto não tem\n36: ferramenta para detectar.\n37: \n38: As consequências são conhecidas e algumas são desagradáveis. O arquivo só\n39: sobrevive a `docker rm` e a rebuild se o volume for montado; o comando documentado\n40: no README e no AGENTS passa a ser `docker run -v deciframe-dados:/app/dados -p\n41: 8080:8080 ciframe`, e `dados/` entra no `.dockerignore` para que `COPY . .` não\n42: asse um banco de desenvolvimento dentro da imagem. O esquema é versionado à mão\n43: com `PRAGMA user_version`, porque não há framework de migração e não vale\n44: introduzir um para uma tabela. A escrita é serializada e não há `USER` no\n45: container, então o arquivo pertence ao root: backup é copiar o arquivo (com o\n46: `-wal`), e rodar com mais de um worker do gunicorn exigiria revisitar o seed e o\n47: `busy_timeout`. Por fim, o seed das seis sequências originais roda no boot com\n48: `INSERT` idempotente apoiado na chave única, o que deixa o catálogo\n49: autossuficiente: o CSV continua sendo a fonte das músicas e o oráculo do teste de\n50: regressão, mas deixa de ser a fonte do catálogo."
+              }
+            ],
+            "metadata": {
+              "truncated": false
+            }
+          },
+          "time": {
+            "created": 1793566040383,
+            "ran": 1793566041484,
+            "completed": 1793566041496
+          }
+        },
+        {
+          "type": "tool",
+          "id": "read_1_2600cf36",
+          "name": "read",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "path": "docs/features/sequencias-customizadas/03-plan.md"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Read file docs/features/sequencias-customizadas/03-plan.md, lines 1-33\n1: # Plano — Sequências de Acordes Customizadas\n2: \n3: > Decomponha a proposta em passos executáveis, em ordem. Este é o roteiro que você\n4: > vai seguir na fase de implementação — se mudar de ideia durante a\n5: > implementação, volte aqui e atualize antes de continuar. Apague este bloco de\n6: > instruções antes de entregar.\n7: \n8: ## Passos\n9: \n10: 1. [ ] ...\n11: 2. [ ] ...\n12: 3. [ ] ...\n13: \n14: ## Arquivos afetados\n15: \n16: | Arquivo | Mudança |\n17: |---|---|\n18: | `main.py` | |\n19: | `musica.py` | |\n20: | `static/assets/js/controllers/sequencia.js` | |\n21: | `static/templates/sequencia.html` | |\n22: | (novo) schema/migração do banco | |\n23: \n24: ## Riscos e mitigação\n25: \n26: [O que pode dar errado, como você vai perceber que deu errado, o que faz se der.]\n27: \n28: ## Definição de pronto\n29: \n30: [Lista objetiva de critérios que, quando satisfeitos, significam \"a feature está\n31: implementada\". Deve incluir, no mínimo: cadastro de sequência funciona, busca por\n32: sequência cadastrada funciona, as 6 sequências originais continuam funcionando\n33: como antes.]"
+              }
+            ],
+            "metadata": {
+              "truncated": false
+            }
+          },
+          "time": {
+            "created": 1793566040744,
+            "ran": 1793566041487,
+            "completed": 1793566041499
+          }
+        }
+      ],
+      "snapshot": {
+        "start": "516e82ffacf6f5c12956d8b05dc8f77cfedf1f94",
+        "end": "516e82ffacf6f5c12956d8b05dc8f77cfedf1f94",
+        "files": []
+      },
+      "finish": "tool-calls",
+      "rawFinish": "tool_calls",
+      "cost": 0,
+      "tokens": {
+        "input": 6395,
+        "output": 99,
+        "reasoning": 27,
+        "cache": {
+          "read": 9216,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_198dde5af001YBF484F7QhMLjP",
+      "time": {
+        "created": 1793566041521,
+        "streamed": 1793566045519,
+        "completed": 1793566045541
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "kimi-k3",
+        "providerID": "opencode-go",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "Let me check what else I need. The user wants the plan to reference the research doc possibly (01-research.md). Let me quickly check main.py structure to reference correctly, and check existing files like `static/assets/js/controllers/sequencia.js`, and check if there's a tests directory. Also check .dockerignore, Dockerfile, requirements.txt briefly to get facts right for the plan.\n\nKey user requirements for the plan:\n1. First step: generate regression baseline (\"gabarito\") with current code, before touching main.py — IDs that the 6 sequences return today, saved to a file, then new code compared against it.\n2. Small steps, each with a verification method (command or test).\n3. Tests with stdlib unittest, no new dependency.\n4. Definition of done with checkable criteria: cadastro survives docker rm + docker run with volume, etc.\n5. Don't implement — only write 03-plan.md and delete the instruction block.\n\nThe instruction block to delete is the blockquote at the top (lines 3-6). The user said \"apaga o bloco de instrução\".\n\nLet me look at main.py and a few files quickly to get accurate details for the plan.",
+          "native": {
+            "reasoningField": "reasoning_content"
+          },
+          "time": {
+            "created": 1793566042514,
+            "completed": 1793566045500
+          }
+        },
+        {
+          "type": "text",
+          "text": "Vou conferir rapidamente os arquivos que o plano vai referenciar (main.py, Dockerfile, estrutura de testes) para manter os passos fiéis ao código."
+        },
+        {
+          "type": "tool",
+          "id": "read_0_8c0b8cb0",
+          "name": "read",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "path": "main.py"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Read file main.py, lines 1-280\n1: # coding: utf-8\n2: import json\n3: from flask import Flask, request\n4: import sys\n5: from musica import *\n6: from collections import OrderedDict\n7: import unicodedata\n8: \n9: app = Flask(__name__)\n10: \n11: def limpa_cifra(raw_cifra):\n12:     cifra = []\n13:     for m in raw_cifra:\n14:         if m.strip() != '':\n15:             # filtra tablaturas\n16:             if '|' in m:\n17:                 acorde = m.split('|')[0].split()[0]\n18:                 cifra.append(acorde)\n19:             # lida com acordes separados por espaço\n20:             else:\n21:                 tokens = [token for token in m.split()]\n22:                 cifra += tokens\n23:     return cifra\n24: \n25: # colunas do csv\n26: ARTISTA_ID = 0\n27: MUSICA_ID = 1\n28: ARTISTA = 2\n29: MUSICA = 3\n30: GENERO = 4\n31: POPULARIDADE = 5\n32: TOM = 6\n33: SEQ_FAMOSA = 7\n34: CIFRA = 8\n35: TAM_PAGINA = 100\n36: \n37: genero_musicas = {}\n38: generos = set()\n39: acordes = set()\n40: sequencias = {'BmGDA' : 0,\n41:         'CGAmF' : 1,\n42:         'EmG' : 2,\n43:         'CA7DmG7' : 3,\n44:         'GmF' : 4,\n45:         'CC7FFm' : 5}\n46: \n47: musicas_dict = {}\n48: \n49: f = open('data/top/dataset_final.csv')\n50: f.readline()\n51: \n52: for line in f:\n53:     line = line.replace('\"', '').replace('NA', '')[:-1]\n54: \n55:     musica = line.split(',')\n56:     musica[POPULARIDADE] = int(musica[POPULARIDADE].replace('.', ''))\n57: \n58:     if musica[CIFRA] != '':\n59:         musica[CIFRA] = limpa_cifra(musica[CIFRA].split(';'))\n60:     else:\n61:         musica[CIFRA] = []\n62: \n63:     musica[SEQ_FAMOSA] = musica[SEQ_FAMOSA].split(\";\")\n64: \n65:     # conjunto único de gêneros\n66:     generos.add(musica[GENERO])\n67: \n68:     # inclui música no dict de músicas\n69:     musica_obj = Musica(musica[ARTISTA_ID], musica[ARTISTA],\n70:             musica[MUSICA_ID], musica[MUSICA], musica[GENERO],\n71:             int(musica[POPULARIDADE]), musica[SEQ_FAMOSA],\n72:             musica[TOM], musica[CIFRA])\n73: \n74:     musicas_dict[musica_obj.id_unico_musica] = musica_obj\n75: \n76:     # conjunto único de acordes\n77:     for acorde in musica_obj.acordes:\n78:         acordes.add(acorde)\n79: \n80:     # constrói dict mapeando gênero para músicas\n81:     # deve ser usado para melhorar o desempenho das buscas\n82:     if musica_obj.genero in genero_musicas:\n83:         genero_musicas[musica_obj.genero].append(musica_obj)\n84:     else:\n85:         genero_musicas[musica_obj.genero] = [musica_obj]\n86: \n87: # dicionário de músicas cujos valores são ordenados por popularidade\n88: musicas = OrderedDict(sorted(musicas_dict.items(),\n89:     key=lambda x: x[1].popularidade, reverse = True))\n90: \n91: # para trabalhar melhor com json\n92: generos = list(generos)\n93: \n94: # ordena genero_musicas por popularidade\n95: for k,v in genero_musicas.items():\n96:     genero_musicas[k].sort(key = lambda x : x.popularidade, reverse = True)\n97: \n98: f.close()\n99: \n100: \n101: @app.route('/')\n102: def index():\n103:     return app.send_static_file('index.html')\n104: ''' Busca por músicas que possuem no título ou no nome do artista o argumento passado por key.\n105: params: key e generos (opcional). Caso generos não sejam definidos, a busca não irá filtrar por gênero.\n106: exemplo 1: /search?key=no dia em que eu saí de casa\n107: exemplo 2: /search?key=no dia em que eu saí de casa&generos=Rock,Samba '''\n108: \n109: @app.route('/<path:path>')\n110: def static_proxy(path):\n111:   # send_static_file will guess the correct MIME type\n112:   return app.send_static_file(path)\n113: \n114: @app.route('/search')\n115: def busca():\n116:     generos_tag = request.args.get('generos', [])\n117:     pagina_tag = request.args.get('pagina','1')\n118:     keys = request.args.get('key').lower()\n119:     keys = remover_combinantes(keys).split(' ')\n120: \n121:     generos_key = generos\n122:     if generos_tag:\n123:         generos_key = generos_tag.split(',')\n124: \n125:     collection = apply_filtro(musicas.values(), generos_key)\n126:     out = []\n127: \n128:     for musica in collection:\n129:         text = '%s %s' % (musica.nome_artista.lower(), musica.nome_musica.lower())\n130:         text_list = remover_combinantes(text).split(' ')\n131:         if all(key in text_list for key in keys):\n132:             matches = {\n133:                 'id_unico_musica' : musica.id_unico_musica,\n134:                 'id_artista' : musica.id_artista,\n135:                 'id_musica' : musica.id_musica,\n136:                 'nome_artista' : musica.nome_artista,\n137:                 'nome_musica' : musica.nome_musica,\n138:                 'genero' : musica.genero,\n139:                 'url' : musica.url,\n140:             }\n141:             out.append(matches)\n142:     return json.dumps(get_pagina(out, pagina_tag))\n143: \n144: # cópia\n145: def remover_combinantes(string):\n146:     string = unicodedata.normalize('NFD', string)\n147:     return u''.join(ch for ch in string if unicodedata.category(ch) != 'Mn')\n148: \n149: ''' Retorna as músicas armazenadas no sistema (ordenados por popularidade).\n150:     O serviço é paginado. Cada página tem tamanho 100, por default.\n151:     params: pagina. Caso não seja definida a página, o valor default é 1.\n152:     exemplo 1: /musica?pagina=2\n153:     exemplo 2: /musica'''\n154: @app.route('/musicas')\n155: def get_musicas():\n156:     return json.dumps([v.__dict__ for v in musicas.values()])\n157: \n158: @app.route('/generos')\n159: def get_generos():\n160:     return json.dumps(generos)\n161: \n162: @app.route('/acordes')\n163: def get_acordes():\n164:     return json.dumps(list(acordes))\n165: \n166: @app.route('/musica/<m_id>/')\n167: def get_musica(m_id):\n168:     return json.dumps(musicas[m_id].__dict__)\n169: \n170: @app.route('/similares')\n171: def get_similares():\n172:     # tratando request\n173:     acordes_tag = request.args.get('acordes')\n174:     id_musica_tag = request.args.get('id_unico_musica')\n175:     sequencia_tag = request.args.get('sequencia')\n176:     pagina_tag = request.args.get('pagina','1')\n177: \n178:     # se não existir, filtra por todos.\n179:     generos_tag = request.args.get('generos')\n180:     generos_key = generos\n181:     if generos_tag:\n182:         generos_key = generos_tag.split(',')\n183: \n184:     acordes = []\n185:     if acordes_tag:\n186:         acordes = acordes_tag.split(',')\n187:     elif id_musica_tag:\n188:         musica = musicas[id_musica_tag]\n189:         acordes = musica.acordes\n190:     elif sequencia_tag:\n191:         acordes = sequencia_tag.replace(',','')\n192:         similares = []\n193: \n194:         if acordes in sequencias:\n195:             id_seq = sequencias[acordes]\n196:             similares = get_pagina(get_similares_por_sequencia(id_seq, generos_key), pagina_tag)\n197:         return json.dumps(similares)\n198: \n199:     similares = get_similares(acordes, generos_key, id_musica_tag)\n200: \n201:     return json.dumps(get_pagina(similares, pagina_tag))\n202: \n203: def get_similares_por_sequencia(id_seq, generos_key):\n204:     # filtra para melhor desempenho\n205:     collection = apply_filtro(musicas.values(), generos_key)\n206: \n207:     similares = []\n208:     for musica in collection:\n209:         if str(id_seq) in musica.seqs_famosas:\n210:             similar = {\n211:                 'id_unico_musica' : musica.id_unico_musica,\n212:                 'id_artista' : musica.id_artista,\n213:                 'id_musica' : musica.id_musica,\n214:                 'nome_artista' : musica.nome_artista,\n215:                 'nome_musica' : musica.nome_musica,\n216:                 'popularidade' : musica.popularidade,\n217:                 'acordes' : musica.acordes,\n218:                 'genero' : musica.genero,\n219:                 'url' : musica.url,\n220:             }\n221:             similares.append(similar)\n222: \n223:     return similares\n224: \n225: \n226: def get_pagina(colecao, pagina_tag):\n227:     sl = (int(pagina_tag) - 1)*TAM_PAGINA\n228:     return colecao[sl:sl+TAM_PAGINA]\n229: \n230: def get_similares(acordes, generos_key, id_musica = None):\n231: \n232:     # filtra para melhor desempenho\n233:     collection = apply_filtro(musicas.values(), generos_key)\n234: \n235:     similares = []\n236:     for musica in collection:\n237: \n238:         if musica.id_unico_musica != id_musica:\n239: \n240:             inter = set(acordes).intersection(set(musica.acordes))\n241:             diff = set(musica.acordes) - set(acordes)\n242: \n243:             # somente as que tiverem interseção e as que forem\n244:             # dos generos solicitados.\n245:             if len(inter) > 0:\n246:                 similar = {\n247:                         'id_unico_musica' : musica.id_unico_musica,\n248:                         'id_artista' : musica.id_artista,\n249:                         'id_musica' : musica.id_musica,\n250:                         'nome_artista' : musica.nome_artista,\n251:                         'nome_musica' : musica.nome_musica,\n252:                         'popularidade' : musica.popularidade,\n253:                         'acordes' : musica.acordes,\n254:                         'genero' : musica.genero,\n255:                         'url' : musica.url,\n256:                         'diferenca' : list(diff),\n257:                         'intersecao' : list(inter)\n258:                 }\n259: \n260:                 similares.append(similar)\n261: \n262:     # ordenados por menor diferença, maior interseção e maior popularidade.\n263:     return sorted(similares, key=lambda x: (len(x['diferenca']), -len(x['intersecao'])))\n264: \n265: ## Filtra a coleção de músicas por gênero.\n266: def apply_filtro(musicas, generos_key):\n267:     # filtra para melhor desempenho\n268:     collection = []\n269:     for genero in generos_key:\n270:         if genero in generos:\n271:             collection += genero_musicas[genero]\n272:     return collection\n273: \n274: @app.after_request\n275: def add_header(response):\n276:     response.headers['Access-Control-Allow-Origin'] = '*'\n277:     return response\n278: \n279: if __name__ == '__main__':\n280:     app.run(debug=True)"
+              }
+            ],
+            "metadata": {
+              "truncated": false
+            }
+          },
+          "time": {
+            "created": 1793566045070,
+            "ran": 1793566045504,
+            "completed": 1793566045526
+          }
+        },
+        {
+          "type": "tool",
+          "id": "read_1_99330ff7",
+          "name": "read",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "path": "Dockerfile"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Read file Dockerfile, lines 1-12\n1: FROM python:3.9-slim\n2: \n3: WORKDIR /app\n4: \n5: COPY requirements.txt .\n6: RUN pip install --no-cache-dir -r requirements.txt\n7: \n8: COPY . .\n9: \n10: EXPOSE 8080\n11: \n12: CMD [\"gunicorn\", \"--bind\", \"0.0.0.0:8080\", \"main:app\"]"
+              }
+            ],
+            "metadata": {
+              "truncated": false
+            }
+          },
+          "time": {
+            "created": 1793566045101,
+            "ran": 1793566045507,
+            "completed": 1793566045524
+          }
+        },
+        {
+          "type": "tool",
+          "id": "glob_2_7d9d4c33",
+          "name": "glob",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "pattern": "{tests,test_*,scripts}/**"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "/Users/julio/Documents/26.2/ciframe/scripts/generate_data_set.py\n/Users/julio/Documents/26.2/ciframe/scripts/collect_song_list.sh\n/Users/julio/Documents/26.2/ciframe/scripts/download_band_names.sh\n/Users/julio/Documents/26.2/ciframe/scripts/normalize_chords.R\n/Users/julio/Documents/26.2/ciframe/scripts/DownloadAll.class\n/Users/julio/Documents/26.2/ciframe/scripts/parse_estilos.py\n/Users/julio/Documents/26.2/ciframe/scripts/DownloadAll.java\n/Users/julio/Documents/26.2/ciframe/scripts/cifra_parser.py\n/Users/julio/Documents/26.2/ciframe/scripts/add_estilos.py\n/Users/julio/Documents/26.2/ciframe/scripts/add_estilos.R\n/Users/julio/Documents/26.2/ciframe/scripts/download_cifras.sh\n/Users/julio/Documents/26.2/ciframe/scripts/parse_artistas_estilos.py\n/Users/julio/Documents/26.2/ciframe/scripts/build-chords-transitions.R\n/Users/julio/Documents/26.2/ciframe/scripts/research_seq_famosas_match.py\n/Users/julio/Documents/26.2/ciframe/scripts/jsoup-1.8.3.jar\n/Users/julio/Documents/26.2/ciframe/scripts/simplify_chords.R"
+              }
+            ],
+            "metadata": {
+              "count": 16,
+              "truncated": false
+            }
+          },
+          "time": {
+            "created": 1793566045260,
+            "ran": 1793566045516,
+            "completed": 1793566045530
+          }
+        }
+      ],
+      "snapshot": {
+        "start": "516e82ffacf6f5c12956d8b05dc8f77cfedf1f94",
+        "end": "516e82ffacf6f5c12956d8b05dc8f77cfedf1f94",
+        "files": []
+      },
+      "finish": "tool-calls",
+      "rawFinish": "tool_calls",
+      "cost": 0,
+      "tokens": {
+        "input": 1852,
+        "output": 159,
+        "reasoning": 247,
+        "cache": {
+          "read": 15552,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_198ddf569001Ae4nTYfmOSATeD",
+      "time": {
+        "created": 1793566045547,
+        "streamed": 1793566047762,
+        "completed": 1793566047826
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "kimi-k3",
+        "providerID": "opencode-go",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "Let me also check `musica.py` and the frontend files, plus `.dockerignore` and whether there's a `tests/` dir. Then write the plan.",
+          "native": {
+            "reasoningField": "reasoning_content"
+          },
+          "time": {
+            "created": 1793566047461,
+            "completed": 1793566047748
+          }
+        },
+        {
+          "type": "tool",
+          "id": "read_0_dd874242",
+          "name": "read",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "path": "musica.py"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Read file musica.py, lines 1-25\n1: class Musica:\n2: \n3:     def __init__(self, id_artista, nome_artista, id_musica, nome_musica,\n4:     \n5:             genero, popularidade, seqs_famosas, tom, cifra):\n6: \n7:             self.id_artista = id_artista\n8:             self.nome_artista = nome_artista\n9:             \n10:             self.id_musica = id_musica\n11:             self.nome_musica = nome_musica\n12: \n13:             self.genero = genero\n14:             self.popularidade = popularidade\n15:             self.tom = tom\n16:             self.cifra = cifra\n17:             self.acordes = list(set(cifra))\n18:             self.seqs_famosas = seqs_famosas\n19: \n20:             self.id_unico_musica = '%s_%s' % (id_artista, id_musica)\n21: \n22:             self.url = 'http://www.cifraclub.com.br/%s/%s' % (id_artista, id_musica)\n23: \n24:     def __str__(self):\n25:         return '%s,%s,%s' % (self.id_unico_musica, self.genero, self.popularidade)"
+              }
+            ],
+            "metadata": {
+              "truncated": false
+            }
+          },
+          "time": {
+            "created": 1793566047475,
+            "ran": 1793566047752,
+            "completed": 1793566047775
+          }
+        },
+        {
+          "type": "tool",
+          "id": "read_1_1448e418",
+          "name": "read",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "path": "static/assets/js/controllers/sequencia.js"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Read file static/assets/js/controllers/sequencia.js, lines 1-105\n1: angular.module('deciframeApp').controller('SequenciaController', function($http, $window, ngProgressFactory, $anchorScroll, $location, GENEROS) {\n2:   var sequencia1 = {\n3:     'index': 1,\n4:     'acordes': [\n5:       { 'acorde': 'Bm', 'cor': '#2E1C74' },\n6:       { 'acorde': 'G',  'cor': '#2E1C74' },\n7:       { 'acorde': 'D',  'cor': '#2E1C74' },\n8:       { 'acorde': 'A',  'cor': '#2E1C74' }\n9:   ]};\n10:   var sequencia2 = {\n11:     'index': 1,\n12:     'acordes': [\n13:       { 'acorde': 'C',  'cor': '#2E1C74' },\n14:       { 'acorde': 'G',  'cor': '#2E1C74' },\n15:       { 'acorde': 'Am', 'cor': '#2E1C74' },\n16:       { 'acorde': 'F',  'cor': '#2E1C74' }\n17:   ]};\n18:   var sequencia3 = {\n19:     'index': 1,\n20:     'acordes': [\n21:       { 'acorde': 'Gm', 'cor': '#2E1C74' },\n22:       { 'acorde': 'F',  'cor': '#2E1C74' }\n23:   ]};\n24:   var sequencia4 = {\n25:     'index': 1,\n26:     'acordes': [\n27:       { 'acorde': 'C',  'cor': '#2E1C74' },\n28:       { 'acorde': 'C7', 'cor': '#2E1C74' },\n29:       { 'acorde': 'F',  'cor': '#2E1C74' },\n30:       { 'acorde': 'Fm', 'cor': '#2E1C74' }\n31:   ]};\n32:   var vm = this;\n33:   vm.sequenciasFamosas = [];\n34:   vm.sequenciasFamosas.push(sequencia1);\n35:   vm.sequenciasFamosas.push(sequencia2);\n36:   vm.sequenciasFamosas.push(sequencia3);\n37:   vm.sequenciasFamosas.push(sequencia4);\n38:   vm.minhaSequencia = {};\n39:   vm.isSearching = false;\n40:   vm.showSearchResultsCount = false;\n41:   vm.esfigeSpeech =  \"\";\n42:   vm.musics = [];\n43:   vm.generos = GENEROS;\n44:   vm.meuGenero = \"\";\n45:   vm.progressbar = ngProgressFactory.createInstance();\n46: \n47:   vm.temAcorde = function(acorde) {\n48:     if (vm.minhaSequencia.acordes) {\n49:       return (vm.minhaSequencia.acordes.indexOf(acorde) > -1);\n50:     } else {\n51:       return false;\n52:     }\n53:   }\n54: \n55:   var createChordsString = function(chords) {\n56:     var str = \"\";\n57:     for (var i = 0; i < chords.length; i++) {\n58:       str = str.concat(chords[i].acorde, ',');\n59:     }\n60:     return str.substring(0, str.length-1);\n61:   }\n62: \n63:   vm.pesquisarPorSequencia = function(sequencia) {\n64:     if (sequencia) {\n65:       vm.minhaSequencia = sequencia;\n66:     }\n67:     vm.progressbar.start();\n68:     vm.esfigeSpeech = \"Procurando músicas com base na sequencia...\";\n69:     vm.isSearching = true;\n70:     vm.musics = [];\n71: \n72:     var apiUrl = \"\";\n73:     var searchString = \"similares?sequencia=\".concat(createChordsString(vm.minhaSequencia.acordes));\n74:     if (vm.meuGenero !== \"\" && vm.meuGenero !== null) {\n75:       searchString += \"&generos=\"+vm.meuGenero;\n76:     }\n77:     $http.get(apiUrl.concat(searchString))\n78:       .success(function(data) {\n79:         vm.progressbar.complete();\n80:         vm.esfigeSpeech = \"Encontrei essas músicas\";\n81:         vm.isSearching = false;\n82:         vm.showSearchResultsCount = true;\n83:         vm.musics = data;\n84:       })\n85:       .error(function(data) {\n86:         vm.esfigeSpeech = \"Ops! Algo errado.\";\n87:         vm.isSearching = false;\n88:         vm.showSearchResultsCount = false;\n89:       });\n90:   }\n91: \n92:   vm.limparPesquisa = function() {\n93:     vm.minhaSequencia = {};\n94:     vm.musics = [];\n95:   }\n96: \n97:   vm.goToLirics = function(music) {\n98:     $window.open(music.url);\n99:   };\n100: \n101:   vm.goToResults = function() {\n102:     vm.showSearchResultsCount = false;\n103:     $(\"body\").animate({scrollTop: $(\"#results\").offset().top}, \"slow\");\n104:   };\n105: });"
+              }
+            ],
+            "metadata": {
+              "truncated": false
+            }
+          },
+          "time": {
+            "created": 1793566047499,
+            "ran": 1793566047754,
+            "completed": 1793566047780
+          }
+        },
+        {
+          "type": "tool",
+          "id": "shell_2_756a5e6f",
+          "name": "shell",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "command": "ls -la /Users/julio/Documents/26.2/ciframe; cat /Users/julio/Documents/26.2/ciframe/.dockerignore 2>/dev/null; echo ---; cat /Users/julio/Documents/26.2/ciframe/requirements.txt"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "total 120\ndrwxr-xr-x@ 18 julio  staff    576 Oct 31 19:00 .\ndrwxr-xr-x@ 11 julio  staff    352 Nov  1 16:42 ..\n-rw-r--r--@  1 julio  staff     29 Oct 31 19:00 .dockerignore\ndrwxr-xr-x@ 13 julio  staff    416 Nov  1 17:41 .git\n-rw-r--r--@  1 julio  staff     46 Oct 31 19:00 .gitignore\n-rw-r--r--@  1 julio  staff    342 Oct 31 19:00 .playground\n-rw-r--r--@  1 julio  staff   1750 Oct 31 19:00 AGENTS.md\n-rw-r--r--@  1 julio  staff   3045 Oct 31 19:00 CONTRIB.md\n-rw-r--r--@  1 julio  staff    190 Oct 31 19:00 Dockerfile\n-rw-r--r--@  1 julio  staff  11357 Oct 31 19:00 LICENSE\n-rw-r--r--@  1 julio  staff    872 Oct 31 19:00 README.md\ndrwxr-xr-x@ 16 julio  staff    512 Oct 31 19:00 data\ndrwxr-xr-x@  4 julio  staff    128 Oct 31 19:00 docs\n-rw-r--r--@  1 julio  staff   8763 Oct 31 19:00 main.py\n-rw-r--r--@  1 julio  staff    825 Oct 31 19:00 musica.py\n-rw-r--r--@  1 julio  staff    188 Oct 31 19:00 requirements.txt\ndrwxr-xr-x@ 18 julio  staff    576 Nov  1 14:38 scripts\ndrwxr-xr-x@  8 julio  staff    256 Oct 31 19:00 static\n.git\n.venv\n__pycache__\n*.pyc\n---\n# This requirements file lists all third-party dependencies for this project.\n#\n# Run 'pip install -r requirements.txt' to install them into your virtualenv.\nFlask==3.1.3\ngunicorn==23.0.0\n"
+              }
+            ],
+            "metadata": {
+              "status": "completed",
+              "truncated": false,
+              "exit": 0
+            }
+          },
+          "time": {
+            "created": 1793566047559,
+            "ran": 1793566047760,
+            "completed": 1793566047802
+          }
+        }
+      ],
+      "snapshot": {
+        "start": "516e82ffacf6f5c12956d8b05dc8f77cfedf1f94",
+        "end": "516e82ffacf6f5c12956d8b05dc8f77cfedf1f94",
+        "files": []
+      },
+      "finish": "tool-calls",
+      "rawFinish": "tool_calls",
+      "cost": 0,
+      "tokens": {
+        "input": 4050,
+        "output": 171,
+        "reasoning": 33,
+        "cache": {
+          "read": 17344,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_198ddfe61001F6ULP1j27kP64P",
+      "time": {
+        "created": 1793566047850,
+        "streamed": 1793566107695,
+        "completed": 1793566107851
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "kimi-k3",
+        "providerID": "opencode-go",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "Now I have all context. Let me write the plan. The user wants:\n\n1. First step: generate regression baseline (gabarito) with current code, before touching main.py — the IDs that the 6 sequences return today, saved to a file, so the new code can be compared against it.\n2. Small steps, each with a verification method (command or test).\n3. Tests with stdlib unittest, no new dependencies.\n4. Definition of done with checkable criteria: cadastro survives docker rm + docker run with volume, etc.\n5. Mirror the 03-plan.md template structure: Passos / Arquivos afetados / Riscos e mitigação / Definição de pronto.\n6. Delete the instruction blockquote.\n7. Don't implement anything.\n\nNote: the template 03-plan.md is the target file itself — the user said \"o template 03-plan.md\", and the file exists at docs/features/sequencias-customizadas/03-plan.md. So I should overwrite that file with the plan, keeping the structure (Passos, Arquivos afetados, Riscos e mitigação, Definição de pronto) and deleting the instruction block.\n\nLet me think about the steps, following the proposal:\n\n**Step 0/1: Gabarito da regressão (baseline).**\n- With current code, run the app (or a small script importing main) and collect the IDs returned for the 6 sequences today, save to e.g. `tests/fixtures/gabarito_sequencias.json`.\n- Actually, current code: GET /similares?sequencia=Bm,G,D,A returns page 1 (100 items). The full set via get_similares_por_sequencia returns everything. The gabarito should probably capture the full ID sets per sequence (not just page 1), since the regression contract is the matching. But also the API response. The proposal says the regression is 514/514 vs SEQ_FAMOSA column — the CSV itself is the oracle. Hmm, but the user explicitly said: \"os ids que as 6 sequencias devolvem hoje, salvos num arquivo, pra depois o codigo novo ser comparado com ele\". So the gabarito is generated with the current code (which uses SEQ_FAMOSA tag matching), capturing returned IDs per sequence.\n- Verification: file exists with 6 keys, counts match the known numbers (BmGDA=199, CGAmF=?, EmG=?, CA7DmG7=?, GmF=?, CC7FFm=? — research says 199 for Bm G D A and 216 for D A Bm G; the exact numbers come from 01-research.md; I haven't read it, so I shouldn't hardcode numbers I don't know. I can reference \"os totais medidos em 01-research.md\" or just say the test compares file vs new code, and the script prints counts).\n\nScript: `scripts/gerar_gabarito_sequencias.py` — starts app? No, simplest: a script that imports main (loads CSV), calls get_similares_por_sequencia for each id_seq 0..5, collects id_unico_musica sorted, writes JSON. Verification: run it, check JSON has 6 entries and non-empty lists.\n\n**Step 2: Matching por regra A + índice por vocabulário (função pura, sem mexer nas rotas).**\n- Add to main.py (or a new module? main.py is single-file; proposal keeps things in main.py. Minimal: add functions in main.py after CSV load: build cifra_borda and vocab index at load; add `busca_por_sequencia(acordes_lista)` returning the same dicts as get_similares_por_sequencia).\n- Actually wait — the proposal says structures derived at CSV load: cifra_borda per music, indice vocabulario -> [musicas].\n- Verification: unittest test comparing new function output for the 6 sequences against gabarito JSON (same ID sets, and same order within apply_filtro iteration? The order: get_similares_por_sequencia iterates apply_filtro(musicas.values()) — insertion order of musicas OrderedDict sorted by popularity. New lookup iterates index list — need same order. The proposal says response keeps \"a mesma ordem de hoje (a iteração de get_similares_por_sequencia sobre apply_filtro)\". So the index list must preserve musicas.values() order. Test should compare ordered ID lists per sequence.)\n\n**Step 3: SQLite catálogo (novo módulo, ex. sequencias_db.py) com schema + seed idempotente.**\n- Verification: unittest with temp file db: schema created, user_version=1, seed inserts 6 with origem='seed', re-seed doesn't duplicate, chave UNIQUE works.\n\n**Step 4: Endpoints GET/POST /sequencias e rewire de /similares para o catálogo.**\n- Replace `sequencias` dict usage in /similares: resolve sequencia param by chave in catalog; new matching function; validate pagina.\n- POST validation: corpo_invalido, sequencia_vazia, acorde_desconhecido com sugestao.\n- Verification: unittest with app.test_client() (Flask stdlib usage — test_client is part of Flask, no new dep), plus curl checks. Tests: GET returns 6 after boot; POST creates 201; POST duplicate 200 existente; 400s; /similares?sequencia= for the 6 matches gabarito page 1.\n\nNote: importing main.py runs the CSV load at import — tests will be slow-ish (~4-6s) but fine. Test uses test_client.\n\n**Step 5: Docker — Dockerfile VOLUME + mkdir, .dockerignore, README/AGENTS docs.**\n- Verification: docker build, docker run with volume, POST, docker rm, docker run again, GET shows the sequence (persistence). Also run without volume to confirm behavior documented.\n\n**Step 6: Frontend — sequencia.js loads catalog, form with datalist, POST, reload list, error messages; template shows total_musicas.**\n- Verification: manual browser check list (no JS test infra; keep honest: manual verification steps + curl to confirm endpoints the page calls).\n\nEach step: verification command/test. Tests with unittest: create `tests/` dir with e.g. `tests/test_matching.py`, `tests/test_db.py`, `tests/test_api.py`, run `python -m unittest discover -s tests -v` — but note main.py reads CSV relative path 'data/top/dataset_final.csv', so tests must run from repo root. unittest discover from root works.\n\nOrder consideration: user said FIRST step is gabarito before touching main.py. Good.\n\nAlso regressão 514/514 contra SEQ_FAMOSA: the gabarito captures that implicitly since current code uses the tag. The proposal mentions \"teste de regressão 514/514 contra a coluna SEQ_FAMOSA\" as in-scope. So a test asserting gabarito == new code covers it, and optionally a test asserting gabarito == SEQ_FAMOSA column computation. Keep it: the gabarito script can assert counts equal to SEQ_FAMOSA-derived sets (the script itself can compute both and fail if differ — that's a nice sanity check that gabarito is trustworthy). Actually simpler: gabarito = IDs the 6 return today via current code path; verification = spot check counts + test later compares.\n\nRiscos e mitigação:\n- Boot mais lento/memória: mitigação — medir no teste manual, fallback varredura com poda (documented in proposal).\n- Ordem dos resultados diferente entre código novo e gabarito: index list built in musicas order; test compares ordered lists.\n- Banco de dev assado na imagem: .dockerignore.\n- Testes lentos porque importar main carrega CSV: aceitar (um único load por run), rodar da raiz.\n- Frontend sem infra de teste: verificação manual com checklist.\n- pagina=abc hoje dá 500: validação nova muda para 400 — efeito aceito e declarado.\n\nDefinição de pronto (checkable):\n- `python -m unittest discover -s tests` verde da raiz, sem dependência nova (requirements.txt inalterado).\n- Para cada uma das 6 sequências, GET /similares?sequencia= devolve página 1 idêntica ao gabarito (mesmos ids, mesma ordem) — teste automatizado.\n- POST cria, GET lista, busca devolve.\n- Persistência: `docker build -t ciframe . && docker run -v deciframe-dados:/app/dados -p 8080:8080 ciframe`, POST uma sequência, `docker rm -f` o container, `docker run` de novo com o mesmo volume → GET /sequencias ainda mostra a sequência cadastrada.\n- Sem volume: cadastro some após docker rm (comportamento documentado no README/AGENTS).\n- curl http://localhost:8080/generos continua devolvendo JSON (sanidade geral).\n- Frontend: página #/porsequencia lista as 6 do backend com total_musicas; cadastrar pela UI funciona e seleciona a nova; erro 400 mostra mensagem; 514/514 (regressão) verde.\n\nAlso the timeline/clarification point in the user's pasted instructions: \"Clarify the code change scope, constraints, and timelines before writing anything down.\" — the scope/constraints are already settled by the proposal + ADR, and the user gave additional constraints. I don't think I need to ask questions; the user gave clear direction. Asking about timelines would be over-asking; this is a plan doc. The user's instruction block seems generic (a command template), and they've already resolved the ambiguity (use 03-plan.md, not design_doc_template). I'll proceed.\n\nStructure of 03-plan.md (mirroring template):\n- # Plano — Sequências de Acordes Customizadas\n- (no instruction block)\n- ## Passos — numbered checkboxes with substeps and \"Verificação:\" for each\n- ## Arquivos afetados — table\n- ## Riscos e mitigação\n- ## Definição de pronto — checklist\n\nKeep concise bullets, actionable. Write in Portuguese.\n\nFiles affected:\n- `main.py`: índice por vocabulário + cifra_borda no load; função de matching regra A; GET/POST /sequencias; /similares resolve pela chave do catálogo e valida pagina; boot: init db + seed.\n- (novo) `sequencias_db.py`: acesso ao SQLite (connect por request, init schema, seed, CRUD). Or put in main.py? Proposal says single-file main.py legacy, but a small module keeps it clean. The plan should decide: novo módulo `sequencias_db.py` — proposal doesn't forbid. Hmm, \"Keep solutions simple\" — single file main.py is the project style, but DB access layer in a module is cleaner for testing with temp files. Actually tests can set SEQUENCIAS_DB env to a temp path and import main. Proposal: \"Caminho: SEQUENCIAS_DB, default /app/dados/sequencias.db\". With module-level import main, the env var must be set before import. Fine for tests. I'll propose `sequencias_db.py` as a small new module — it's a design decision the plan can make; proposal says \"schema/migração do banco\" as \"(novo)\" in the template's files table, implying a new file. I'll go with a new module, noting main.py imports it.\n- (novo) `scripts/gerar_gabarito_sequencias.py`\n- (novo) `tests/__init__.py`, `tests/test_matching.py` (regressão gabarito), `tests/test_sequencias_db.py`, `tests/test_api.py`\n- (novo) `tests/fixtures/gabarito_sequencias.json` (generated, committed? It's generated by script; commit it so the test doesn't depend on script run order — but the script is step 1 and test fixture must exist. I'll say o arquivo é commitado como fixture.) Hmm, gitignore — check .gitignore doesn't exclude. It excludes .venv, __pycache__, *.pyc. Fine.\n- `Dockerfile`: mkdir /app/dados + VOLUME\n- `.dockerignore`: dados/\n- `README.md`, `AGENTS.md`: volume command\n- `static/assets/js/controllers/sequencia.js`: catálogo do backend + cadastro\n- `static/templates/sequencia.html`: form + total_musicas\n\nStep ordering with verification:\n\n1. Gabarito (scripts/gerar_gabarito_sequencias.py → tests/fixtures/gabarito_sequencias.json). Verificação: `python scripts/gerar_gabarito_sequencias.py` imprime os 6 totais; conferir que batem com os números da pesquisa (199 para bm;g;d;a) e o JSON tem 6 chaves. Also sanity: script cross-checks against SEQ_FAMOSA column? The current code path IS the SEQ_FAMOSA tag. The script could also compute regra A sets and report — no wait, that's new matching, not yet. Keep simple: gabarito via current code; print counts; eyeball vs 01-research numbers.\n   Note the script must run against current code without starting the server: import main, call get_similares_por_sequencia(id_seq, generos) for ids 0-5, collect id_unico_musica lists in order, write JSON.\n\n2. Índice + matching regra A em main.py (sem trocar as rotas ainda). Verificação: `python -m unittest tests.test_matching` — compara, para as 6, a lista ordenada de ids da função nova com o gabarito (igualdade exata), e mede/printa tempo mediano (informativo). Test também cobre o caso de borda (A7 D A → não casa por prefixo) — the 17-vs-1 case: seq A7 D A deve devolver exatamente 1 música (research measured). Good checkable assertion.\n\n3. Camada SQLite (sequencias_db.py): schema, pragmas, user_version, seed idempotente, insert-or-get por chave. Verificação: `python -m unittest tests.test_sequencias_db` com arquivo temporário: cria schema, user_version=1, seed 6 linhas com origem='seed' na ordem certa, seed repetido não duplica, chave duplicada devolve a existente.\n\n4. Endpoints: GET /sequencias, POST /sequencias (201/200/400×3), /similares passa a resolver por chave + validar pagina. Boot faz init+seed depois do load do CSV. Verificação: `python -m unittest discover -s tests` (test_api com test_client: 6 sequências no GET com total_musicas>0; POST nova 201; POST repetida 200 existente:true e mesmo id; 400 vazio/acorde desconhecido/corpo inválido com sugestao quando houver; /similares?sequencia=Bm,G,D,A página 1 == gabarito[0:100]; /similares?sequencia=Bm, G, D, A com espaços funciona; pagina=abc → 400). + curl manual nos endpoints com o servidor rodando.\n\n5. Docker e docs: Dockerfile (mkdir+VOLUME), .dockerignore (dados/), README + AGENTS com o comando do volume. Verificação: build; run com volume; POST; rm; run de novo; GET mostra a sequência (persistência). Run sem volume: cadastro some após rm — comportamento documentado. curl /generos ok.\n\n6. Frontend: sequencia.js carrega GET /sequencias, monta hexes, formulário com datalist de /acordes, POST + reload + seleção + erros; sequencia.html mostra total_musicas. Verificação: checklist manual no navegador (lista as 6; cadastro via UI; nova selecionada; erro exibido; resultados iguais aos do curl).\n\nOrder question: should frontend come before Docker? Any order works; Docker after backend makes persistence testable before UI. Keep 1-6 as above. Maybe swap 5 and 6? The DoD includes docker persistence; order in plan: backend → docker → frontend is fine. Actually frontend last is good since it depends on all endpoints.\n\nRiscos:\n- Ordem do resultado do índice diferente da iteração atual → gabarito compara lista ordenada; construir as listas do índice na ordem de musicas.values().\n- Boot +~1,3s e +48MB → medido na pesquisa; se incomodar, fallback é a varredura com poda (2,8ms) — decisão registrada na proposta, sem mudança de comportamento.\n- Import de main.py nos testes carrega o CSV (~4-6s) → aceitar; rodar sempre da raiz (caminho relativo do CSV).\n- Banco de dev dentro da imagem → dados/ no .dockerignore + SEQUENCIAS_DB default /app/dados.\n- Concorrência no seed com mais de 1 worker → INSERT idempotente apoiado no UNIQUE; gunicorn roda 1 worker hoje (ADR 0002).\n- Frontend sem teste automatizado → checklist manual + curl como oráculo.\n- Testes API precisam de banco isolado → SEQUENCIAS_DB apontando para arquivo temporário antes de importar main.\n\nDefinição de pronto:\n- [ ] `python -m unittest discover -s tests -v` passa da raiz, com requirements.txt inalterado (só stdlib + Flask/gunicorn).\n- [ ] Regressão das 6: para cada sequência do gabarito, ids e ordem devolvidos pelo código novo são idênticos ao arquivo (teste automatizado, não conferência manual).\n- [ ] `curl localhost:8080/sequencias` lista as 6 sementes com total_musicas > 0 logo após o boot.\n- [ ] Cadastro: `curl -X POST .../sequencias -d '{\"acordes\":[\"Em\",\"Am\",\"D\",\"G\"]}'` → 201; repetir → 200 com existente:true; busca /similares?sequencia=Em,Am,D,G devolve resultado não-vazio.\n- [ ] Persistência: com `docker run -v deciframe-dados:/app/dados -p 8080:8080 ciframe`, cadastrar sequência, `docker rm -f` no container, subir de novo com o mesmo volume → GET /sequencias ainda contém a sequência.\n- [ ] Sem volume, o cadastro não sobrevive a docker rm (e README/AGENTS dizem isso).\n- [ ] UI #/porsequencia mostra as sequências do backend com total de músicas, cadastra pela página e exibe os erros 400.\n- [ ] `curl localhost:8080/generos` e buscas antigas (/search, /similares?acordes=) continuam respondendo.\n\nKeep it concise. Now write the file. Mirror template structure exactly: H1 title, ## Passos, ## Arquivos afetados (table), ## Riscos e mitigação, ## Definição de pronto. Delete the instruction blockquote.\n\nFor Arquivos afetados table, keep the template's columns Arquivo | Mudança.\n\nLet me write it.",
+          "native": {
+            "reasoningField": "reasoning_content"
+          },
+          "time": {
+            "created": 1793566048836,
+            "completed": 1793566107684
+          }
+        },
+        {
+          "type": "text",
+          "text": "Tenho todo o contexto. Escrevendo o plano em `docs/features/sequencias-customizadas/03-plan.md`, mantendo a estrutura do template e removendo o bloco de instruções."
+        },
+        {
+          "type": "tool",
+          "id": "write_0_8dd1ffd1",
+          "name": "write",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "path": "docs/features/sequencias-customizadas/03-plan.md",
+              "content": "# Plano — Sequências de Acordes Customizadas\n\nBaseado em `02-proposal.md` e `docs/adr/0002-persist-custom-sequences.md`.\nRestrições fixas: testes com `unittest` da stdlib (zero dependência nova em\n`requirements.txt`); `main.py` continua servindo `json.dumps` com\n`Content-Type: text/html`; a regressão das 6 sequências é o contrato do produto.\n\n## Passos\n\n1. [ ] **Gabarito da regressão com o código atual (antes de tocar em\n   `main.py`).** Criar `scripts/gerar_gabarito_sequencias.py`: importa `main`,\n   chama `get_similares_por_sequencia(id_seq, generos)` para `id_seq` 0–5,\n   grava `tests/fixtures/gabarito_sequencias.json` com\n   `{chave: [id_unico_musica, ...]}` na ordem devolvida hoje, chaves\n   `bm;g;d;a`, `c;g;am;f`, `em;g`, `c;a7;dm;g7`, `gm;f`, `c;c7;f;fm`.\n   O fixture é commitado.\n   **Verificação:** `python scripts/gerar_gabarito_sequencias.py` imprime os 6\n   totais; conferir que batem com a pesquisa (`bm;g;d;a` = 199) e que o JSON\n   tem 6 chaves com listas não vazias.\n\n2. [ ] **Matching pela regra A com índice por vocabulário, sem mexer nas\n   rotas.** Em `main.py`, no load do CSV: montar `cifra_borda` por música\n   (`';' + ';'.join(tokens minúsculos) + ';'`) e o índice\n   `frozenset(acordes) -> [músicas]`, com as listas construídas na ordem de\n   `musicas.values()` para preservar a ordem atual da resposta. Nova função\n   `busca_por_sequencia(tokens)` faz lookup no índice + teste de substring com\n   bordas, devolvendo os mesmos campos de `get_similares_por_sequencia`.\n   **Verificação:** `python -m unittest tests.test_matching` — compara, para\n   cada uma das 6, a lista ordenada de ids da função nova com o gabarito\n   (igualdade exata, não interseção); mais um caso de borda:\n   `[\"A7\",\"D\",\"A\"]` devolve exatamente 1 música (não 17 por prefixo).\n\n3. [ ] **Camada SQLite em módulo novo `sequencias_db.py`.** Conexão por\n   chamada; `PRAGMA journal_mode=WAL`, `busy_timeout=5000`,\n   `foreign_keys=ON`; esquema da tabela `sequencias` (proposta §Esquema) com\n   `UNIQUE(chave)`; `PRAGMA user_version = 1` conferido no init; seed das 6\n   com `INSERT OR IGNORE` e `origem='seed'`; funções `listar()`,\n   `inserir_ou_obter(tokens)` (devolve `(linha, criada)`),\n   `buscar_por_chave(chave)`. Caminho via `SEQUENCIAS_DB`, default\n   `/app/dados/sequencias.db`, com `makedirs` no init.\n   **Verificação:** `python -m unittest tests.test_sequencias_db` — usa\n   arquivo temporário: schema criado, `user_version=1`, seed insere as 6 na\n   ordem certa, seed repetido não duplica, `inserir_ou_obter` duplicado\n   devolve a linha existente com `criada=False`.\n\n4. [ ] **Endpoints e boot.** Em `main.py`: init do banco + seed no boot,\n   depois do load do CSV; `GET /sequencias` devolvendo\n   `[{id, acordes, origem, total_musicas}]` com `total_musicas` calculado na\n   hora via `busca_por_sequencia`; `POST /sequencias` com as validações da\n   proposta (`corpo_invalido`, `sequencia_vazia`, `acorde_desconhecido` com\n   `sugestao` quando houver grafia igual ignorando caixa) e respostas 201/200;\n   `/similares?sequencia=` passa a separar por vírgula, dar `strip`, baixar\n   caixa e resolver pela `chave` no catálogo, devolvendo `[]` com 200 se não\n   existir; `pagina` validada como inteiro ≥ 1 (400 em vez do 500 de hoje).\n   Remover o dict `sequencias` hardcoded. Respostas continuam `json.dumps`.\n   **Verificação:** `python -m unittest discover -s tests` — `test_api.py` usa\n   `app.test_client()` com `SEQUENCIAS_DB` apontando para arquivo temporário\n   antes de importar `main`: GET lista as 6 com `total_musicas > 0`; POST nova\n   → 201; POST repetida → 200 com `existente: true` e mesmo `id`; os três 400;\n   `/similares?sequencia=Bm,G,D,A` página 1 idêntica aos 100 primeiros ids do\n   gabarito; `Bm, G, D, A` (com espaços) devolve o mesmo; `pagina=abc` → 400.\n   Mais smoke com o servidor de pé: `curl localhost:5000/sequencias`.\n\n5. [ ] **Docker e documentação.** `Dockerfile` ganha `RUN mkdir -p /app/dados`\n   e `VOLUME [\"/app/dados\"]`; `dados/` entra no `.dockerignore`; README e\n   AGENTS passam a documentar\n   `docker run -v deciframe-dados:/app/dados -p 8080:8080 ciframe` e o\n   comportamento sem volume.\n   **Verificação:** `docker build -t ciframe .`; subir com o volume, cadastrar\n   uma sequência via `curl -X POST`, `docker rm -f` no container, subir de\n   novo com o mesmo volume → `curl localhost:8080/sequencias` ainda mostra a\n   sequência. Repetir sem volume e confirmar que o cadastro some após\n   `docker rm` (comportamento documentado).\n\n6. [ ] **Frontend mínimo.** `sequencia.js`: remover os 4 objetos hardcoded,\n   carregar `GET /sequencias` no início do controller montando\n   `{acorde, cor}` para o `df-hex`; formulário acima da lista com campo que\n   aceita espaço ou vírgula, `datalist` alimentado por `GET /acordes`, e\n   botão que faz `POST /sequencias`; em 201/200 recarregar a lista e\n   selecionar a sequência; em 400 exibir a mensagem do servidor (incluindo a\n   `sugestao`). `sequencia.html`: mostrar `total_musicas` em cada bloco; não\n   tocar no `ng-hide=\"music.diferenca.length\"` nem no\n   `orderBy:'-popularidade'`.\n   **Verificação:** checklist manual no navegador — a página lista as 6 do\n   backend com totais; cadastro pela UI funciona e a nova fica selecionada;\n   erro de acorde desconhecido aparece com a sugestão; resultados da busca\n   batem com o `curl /similares?sequencia=` correspondente.\n\n## Arquivos afetados\n\n| Arquivo | Mudança |\n|---|---|\n| `main.py` | Índice por vocabulário + `cifra_borda` no load; `busca_por_sequencia`; `GET/POST /sequencias`; `/similares` resolve por chave e valida `pagina`; init + seed no boot; remove dict `sequencias` |\n| (novo) `sequencias_db.py` | Acesso ao SQLite: schema, pragmas, `user_version`, seed idempotente, CRUD do catálogo |\n| (novo) `scripts/gerar_gabarito_sequencias.py` | Gera `tests/fixtures/gabarito_sequencias.json` com o código atual |\n| (novo) `tests/test_matching.py`, `tests/test_sequencias_db.py`, `tests/test_api.py` | Regressão do gabarito, unidade do banco, contrato dos endpoints (unittest puro) |\n| `musica.py` | Nenhuma |\n| `static/assets/js/controllers/sequencia.js` | Catálogo via `GET /sequencias`; formulário de cadastro com `datalist`; trata 201/200/400 |\n| `static/templates/sequencia.html` | Form de cadastro; `total_musicas` por sequência |\n| `Dockerfile` | `RUN mkdir -p /app/dados` + `VOLUME [\"/app/dados\"]` |\n| `.dockerignore` | Adiciona `dados/` |\n| `README.md`, `AGENTS.md` | Comando `docker run` com volume nomeado; comportamento sem volume |\n\n## Riscos e mitigação\n\n- **Ordem da resposta mudar em relação ao gabarito.** O índice por vocabulário\n  não garante ordem por si. Mitigação: construir as listas do índice iterando\n  `musicas.values()` (ordem atual de iteração) e o teste do passo 2 comparar\n  listas ordenadas de ids, não conjuntos.\n- **Testes lentos e frágeis por importar `main.py`** (o load do CSV acontece\n  no import, ~4–6 s, e usa caminho relativo). Mitigação: aceitar um load por\n  rodada de testes, rodar sempre da raiz do repo, e setar `SEQUENCIAS_DB` para\n  arquivo temporário antes do import para isolar o banco de teste.\n- **Banco de desenvolvimento assado dentro da imagem** pelo `COPY . .`.\n  Mitigação: `dados/` no `.dockerignore` e default `/app/dados/sequencias.db`,\n  fora do checkout em produção.\n- **Seed duplicado se o número de workers mudar.** Mitigação: `INSERT OR\n  IGNORE` apoiado no `UNIQUE(chave)` (ADR 0002); hoje o gunicorn roda 1\n  worker, e o teste do passo 3 cobre a idempotência.\n- **Boot mais lento (+~1,3 s) e +~48 MB de memória.** Medido na pesquisa e\n  aceito na proposta; se incomodar em uso, o substituto direto é a varredura\n  com poda por vocabulário (2,8 ms), sem mudança de comportamento — decisão\n  já registrada, não entra neste plano.\n- **Frontend sem infra de teste automatizado.** Mitigação: checklist manual do\n  passo 6 com `curl` como oráculo de cada chamada que a página faz.\n\n## Definição de pronto\n\n- [ ] `python -m unittest discover -s tests -v` passa a partir da raiz, com\n  `requirements.txt` inalterado (só stdlib + Flask + gunicorn).\n- [ ] Regressão das 6 automatizada: para cada sequência do gabarito, a lista\n  ordenada de ids devolvida pelo código novo é idêntica ao fixture\n  commitado — e a página 1 de `/similares?sequencia=` casa os 100 primeiros.\n- [ ] `curl localhost:8080/sequencias` logo após o boot lista as 6 sementes\n  com `total_musicas > 0`.\n- [ ] Cadastro idempotente via API: `POST /sequencias` com sequência nova →\n  201; repetição → 200 com `existente: true` e mesmo `id`;\n  `/similares?sequencia=` com ela devolve resultado não vazio.\n- [ ] Persistência verificada em container: com\n  `docker run -v deciframe-dados:/app/dados -p 8080:8080 ciframe`, cadastrar\n  uma sequência, `docker rm -f` no container, subir de novo com o mesmo\n  volume → `GET /sequencias` ainda contém a sequência cadastrada.\n- [ ] Sem o volume, o cadastro não sobrevive a `docker rm` — e README e\n  AGENTS documentam os dois comportamentos.\n- [ ] UI `#/porsequencia`: lista as sequências do backend com o total de\n  músicas, cadastra pela página (a nova fica selecionada) e exibe as\n  mensagens dos 400, incluindo a sugestão de grafia.\n- [ ] Endpoints antigos intactos: `curl localhost:8080/generos` devolve o\n  JSON de gêneros e `/search` + `/similares?acordes=` continuam respondendo\n  como hoje.\n"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Wrote file successfully: docs/features/sequencias-customizadas/03-plan.md"
+              }
+            ],
+            "metadata": {
+              "truncated": false
+            }
+          },
+          "time": {
+            "created": 1793566085440,
+            "ran": 1793566107690,
+            "completed": 1793566107712
+          }
+        }
+      ],
+      "snapshot": {
+        "start": "516e82ffacf6f5c12956d8b05dc8f77cfedf1f94",
+        "end": "f70c5afb5993c12d6e75c2d35a6c6deda6658ddb",
+        "files": [
+          "docs/features/sequencias-customizadas/03-plan.md"
+        ]
+      },
+      "finish": "tool-calls",
+      "rawFinish": "tool_calls",
+      "cost": 0,
+      "tokens": {
+        "input": 2426,
+        "output": 3190,
+        "reasoning": 4348,
+        "cache": {
+          "read": 21376,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_198dee8dd001gZBBeVmV9Y8Cgh",
+      "time": {
+        "created": 1793566107877,
+        "streamed": 1793566112674,
+        "completed": 1793566112693
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "kimi-k3",
+        "providerID": "opencode-go",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The file was written successfully. Let me verify the content is correct — the write completed as expected. I should just confirm completion to the user briefly. Nothing else to do: no implementation, just the plan file with the instruction block removed. Let me do a quick sanity check that the file looks right (optional — the write succeeded). I can just report done.",
+          "native": {
+            "reasoningField": "reasoning_content"
+          },
+          "time": {
+            "created": 1793566109356,
+            "completed": 1793566112670
+          }
+        },
+        {
+          "type": "text",
+          "text": "Plano escrito em `docs/features/sequencias-customizadas/03-plan.md`, com o bloco de instruções removido. Resumo do que ficou:\n\n- **Passo 1 é o gabarito**: `scripts/gerar_gabarito_sequencias.py` roda contra o código atual e grava os ids das 6 sequências em `tests/fixtures/gabarito_sequencias.json` (commitado), antes de qualquer mudança em `main.py`. Os passos 2 e 4 comparam o código novo contra esse fixture por igualdade exata de lista ordenada.\n- **6 passos pequenos, cada um com verificação**: gabarito → matching/índice → camada SQLite → endpoints → Docker/docs → frontend, cada um com comando (`python -m unittest ...`, `curl`, ciclo `docker run`/`rm`) ou checklist manual.\n- **Só unittest da stdlib**: três arquivos de teste novos, `requirements.txt` inalterado — virou critério explícito na definição de pronto.\n- **Definição de pronto checável**: inclui o ciclo completo `docker run` com volume → cadastro → `docker rm -f` → `docker run` de novo → `GET /sequencias` ainda mostra a sequência, mais o comportamento sem volume documentado, regressão das 6 automatizada e sanidade dos endpoints antigos.\n\nNada foi implementado — só o `.md`."
+        }
+      ],
+      "snapshot": {
+        "start": "f70c5afb5993c12d6e75c2d35a6c6deda6658ddb",
+        "end": "f70c5afb5993c12d6e75c2d35a6c6deda6658ddb",
+        "files": []
+      },
+      "finish": "stop",
+      "rawFinish": "stop",
+      "cost": 0,
+      "tokens": {
+        "input": 7677,
+        "output": 348,
+        "reasoning": 73,
+        "cache": {
+          "read": 23744,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_198defbba0012D0ELSmJy3sgwq",
+      "time": {
+        "created": 1793566112698
+      },
+      "type": "idle",
+      "outcome": "succeeded"
+    },
+    {
+      "id": "msg_198df44f9001oNxrhv6yzzmOAP",
+      "time": {
+        "created": 1793566131484
+      },
+      "text": "abandonamos o uso do campo harmonico?",
+      "files": [],
+      "agents": [],
+      "type": "user"
+    },
+    {
+      "id": "msg_198df4526001Xsc0tkIVGcuumW",
+      "time": {
+        "created": 1793566131502,
+        "streamed": 1793566135512,
+        "completed": 1793566135570
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "kimi-k3",
+        "providerID": "opencode-go",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The user asks: \"abandonamos o uso do campo harmonico?\" — did we abandon the use of harmonic field (campo harmônico)?\n\nLooking at the proposal (02-proposal.md), in \"Escopo explícito\" → \"Fora do escopo (e por quê)\":\n\n\"- Campo harmônico, transposição e matching por graus (`NCIFRA`): a decisão está adiada no §2.9 e muda a unidade de comparação, não só o armazenamento; aplicá-la às 6 quebraria a regressão.\"\n\nSo the answer: not abandoned — explicitly deferred (adiada), out of scope for this feature. The decision is postponed per §2.9 of the research doc (01-research.md). The reason: it changes the comparison unit (degrees/NCIFRA instead of literal chord tokens), not just storage; applying it to the 6 original sequences would break the regression contract.\n\nLet me check 01-research.md §2.9 to give an accurate answer about what was decided there. The user is asking a question — I should answer in text, possibly referencing the docs. Let me read the relevant section to be accurate.\n\nThe proposal references §2.9 of 01-research.md. Let me read that file section to answer precisely.",
+          "native": {
+            "reasoningField": "reasoning_content"
+          },
+          "time": {
+            "created": 1793566132533,
+            "completed": 1793566135505
+          }
+        },
+        {
+          "type": "text",
+          "text": "Vou conferir o que o §2.9 da pesquisa diz sobre isso para responder com precisão."
+        },
+        {
+          "type": "tool",
+          "id": "grep_0_078e3389",
+          "name": "grep",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "pattern": "campo harm|NCIFRA|graus|transpo",
+              "path": "docs/features/sequencias-customizadas/01-research.md",
+              "caseSensitive": false
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Found 56 matches\n/Users/julio/Documents/26.2/ciframe/docs/features/sequencias-customizadas/01-research.md:\n  Line 26: Sobre campo harmônico, medido na §2.9: comparar por classe de altura (união dos\n\n  Line 29: reproduz a tag 514/514. Comparar por graus via `NCIFRA` leva `C G Am F` de 296\n\n  Line 218:   geram uma coluna `NCIFRA` em algarismos romanos a partir de\n\n  Line 219:   `data/transposition_matrix2.csv`), mas **nenhum é chamado pelo runtime** —\n\n  Line 245:   `TOM` + `data/transposition_matrix2.csv` para gerar `NCIFRA` em graus; a\n\n  Line 252:   `data/dataset_seq_notas.csv` já tem a coluna `NCIFRA` pronta. Números da\n\n  Line 589: #### 2.9 Seleção por campo harmônico: o que mudaria (seção 16)\n\n  Line 591: \"Selecionar por campo harmônico\" pode significar duas coisas diferentes, com\n\n  Line 592: custos diferentes. A primeira é comparar a consulta **transposta por classe de\n\n  Line 595: (`Am` ≠ `A`, `G/B` ≠ `G`). A segunda é comparar **graus** (I, V, vi, IV) usando\n\n  Line 596: `TOM` + `NCIFRA`, o que é independente do tom e da grafia, mas perde qualidade,\n\n  Line 597: modo e inversão. Nenhuma das duas é \"o campo harmônico\" no sentido completo: o\n\n  Line 598: `NCIFRA` é uma sequência de graus, sem modo, sem função e sem modulação.\n\n  Line 600: **(a) Transposição por classe de altura (sem `TOM`).** A consulta é normalizada\n\n  Line 601: para classe de altura + sufixo e comparada com as 12 transposições; o conjunto\n\n  Line 622: acordes, só que transpostos.\n\n  Line 624: **(b) Graus via `NCIFRA`.** A base offline tem 66.525 linhas para 67.585 músicas\n\n  Line 626: no runtime). Dessas, 7.730 têm `CIFRA` vazia; 58.772 alinham `CIFRA` e `NCIFRA`\n\n  Line 629: graus que existem são os sete (I–VII), vazio e `NA`: 7,48% dos tokens saem\n\n  Line 630: vazios e 0,07% saem `NA`. Para consultar por graus é preciso dizer qual é o tom\n\n  Line 634: | progressão | tom | graus | só bloco | bloco + vocabulário |\n\n  Line 642: `NCIFRA` descarta o modo (`vi` vira `VI`). `Bm G D A` em D vira VI IV I V, o\n\n  Line 644: bloco tem que aparecer contíguo. Existem 1.730 blocos de 4 graus distintos que\n\n  Line 650: união dos 12 tons e 1.877 por graus; 1.080 estão nas duas leituras (tons e\n\n  Line 651: graus), 797 só nos graus e 180 só nos tons. As 797 que só os graus encontram são\n\n  Line 652: músicas cuja progressão tem a mesma sequência de graus mas qualidade, modo ou\n\n  Line 655: A leitura por graus também não contém toda a regra A: dos 296 matches literais\n\n  Line 659: Os números de graus usam comparação token a token: os algarismos romanos têm de\n\n  Line 829: | Normalizar por tom com `NCIFRA` (algarismos romanos) | compara progressões em tons diferentes | hoje só existe em R offline (`scripts/normalize_chords.R`), não no runtime; muda a unidade de comparação; perde qualidade/extensão e acidente (`C`=`C7`=`Cmaj7`, `Bb`=`B`) e deixa 7,48% dos tokens sem grau (mais 0,07% `NA`) |\n\n  Line 831: ### Campo harmônico e transposição (argumentos; decisão adiada)\n\n  Line 833: Selecionar por campo harmônico é comparar a progressão em graus (I, V, vi, IV)\n\n  Line 835: do script: transpor a consulta por classe de altura (12 tons, sem `TOM`) ou\n\n  Line 836: converter tudo para graus com `TOM` + `NCIFRA`. A decisão não é desta fase; os\n\n  Line 842:   tons devolve 1.260 (4,3×) e a leitura por graus devolve 1.877 (6,3×). Nas\n\n  Line 843:   progressões populares medidas, o ganho da transposição fica entre 4,1× e 5,9×.\n\n  Line 848:   busca por graus permitiria procurar pela forma em vez do acorde concreto, e a\n\n  Line 851: - **Artefato já existe.** `data/dataset_seq_notas.csv` tem `NCIFRA` para 58.770\n\n  Line 852:   músicas do runtime (87,0%), e `data/transposition_matrix2.csv` +\n\n  Line 855: - **Custo de consulta da variante por graus.** Comparar uma coluna pré-computada\n\n  Line 856:   token a token é da mesma ordem da varredura atual; a variante por transposição\n\n  Line 862: - **`TOM` é o elo fraco da variante por graus.** 805 músicas sem tom (98,8%\n\n  Line 865:   ele. Um `TOM` errado produz graus errados em silêncio.\n\n  Line 866: - **`NCIFRA` perde informação.** 7,48% dos tokens saem sem grau e 0,07% saem\n\n  Line 870: - **Precisão cai, e não é pouco.** 1.877 matches por graus contra 296 literais;\n\n  Line 875:   Hoje o matching não precisa dessa decisão; por graus, ou o usuário digita\n\n  Line 876:   graus, ou informa o tom, ou o sistema infere (mais uma regra, com ambiguidade\n\n  Line 884:   vazia, 58.772 alinham, 12 têm `;` sobrando e 23 não têm `NCIFRA`; a geração\n\n  Line 886: - **Colisões de padrão.** 1.730 blocos de 4 graus casam ao menos uma música; os\n\n  Line 891: - **Teoria na UI.** Para consultar por graus o usuário precisa saber algarismos\n\n  Line 892:   romanos; para exibir o campo harmônico sem casar por ele, é teoria a mais numa\n\n  Line 898: | Comparar por classe de altura (12 transposições) | acha a mesma forma em qualquer tom; unifica enarmonia sem tabela; não usa `TOM` | 12× o custo; 53 músicas têm token sem nota e ficam fora; é superconjunto da regra A (não reproduz a tag); em progressões curtas pode casar muita coisa |\n\n  Line 899: | Transpor a consulta para o `TOM` de cada música (1 transposição) | mais barato que as 12; usa informação que já existe | depende da qualidade do `TOM`; 805 sem tom; sem modo nem modulação; mesmo problema de superconjunto |\n\n  Line 900: | Comparar por graus via `NCIFRA` | independente de tom e de grafia; permite buscar por função; artefato offline pronto | perde qualidade, modo e inversão; 7,48% dos tokens sem grau; `TOM` é o elo fraco; 1.877 vs 296; não reproduz a tag |\n\n  Line 901: | Exibir o campo harmônico da sequência sem mudar o matching | barato; informativo para o músico | não faz parte do contrato de busca; exige teoria na UI; não resolve nenhum requisito da feature |\n\n  Line 1013: vocabulário de acordes e entradas de borda; (16) campo harmônico: cobertura do\n\n  Line 1014: `NCIFRA`, união dos 12 tons e matching por graus; (17) cross-check com `main.py`\n"
+              }
+            ],
+            "metadata": {
+              "matches": 56,
+              "truncated": false
+            }
+          },
+          "time": {
+            "created": 1793566135032,
+            "ran": 1793566135509,
+            "completed": 1793566135545
+          }
+        }
+      ],
+      "snapshot": {
+        "start": "f70c5afb5993c12d6e75c2d35a6c6deda6658ddb",
+        "end": "f70c5afb5993c12d6e75c2d35a6c6deda6658ddb",
+        "files": []
+      },
+      "finish": "tool-calls",
+      "rawFinish": "tool_calls",
+      "cost": 0,
+      "tokens": {
+        "input": 478,
+        "output": 129,
+        "reasoning": 282,
+        "cache": {
+          "read": 31360,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_198df55210017rs365s0GGWv6l",
+      "time": {
+        "created": 1793566135593,
+        "streamed": 1793566143845,
+        "completed": 1793566143861
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "kimi-k3",
+        "providerID": "opencode-go",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The question: \"abandonamos o uso do campo harmonico?\" — Did we abandon harmonic field?\n\nAnswer: Not abandoned — deferred (adiada). The decision is explicitly postponed, per research §2.9 (\"decisão adiada\") and the proposal's \"Fora do escopo\": \"a decisão está adiada no §2.9\". Reasons:\n\n1. It changes the comparison unit (degrees via NCIFRA, or 12 transpositions by pitch class), not just storage — so bundling it with persistence would make it impossible to attribute differences.\n2. Applying it to the 6 originals would break the regression: matching by degrees takes `C G Am F` from 296 to 1.877 matches (6.3×), transposition to 1.260 (4.3×); neither reproduces the tag 514/514 (it's a superset of rule A).\n3. NCIFRA loses info: quality, mode, inversion; 7.48% of tokens get no degree; TOM is the weak link (805 songs without tom).\n4. There's also a product/UI question: user would need to type roman numerals or inform the key.\n\nAlso the \"exibir campo harmônico sem casar por ele\" option was considered and is also out: \"exige teoria na UI; não resolve nenhum requisito da feature\".\n\nSo: nothing was implemented that precludes it — the matching is a pure function over tokens; revisiting campo harmônico later is possible (the research even keeps the numbers and the offline artifact NCIFRA exists for 87% of songs). If rule A proves too narrow, proposal says the fallback to revisit is regra C, and harmonic field is a separate deferred decision.\n\nAnswer concisely in Portuguese. No file changes needed — this is a question. Cite where it's recorded.",
+          "native": {
+            "reasoningField": "reasoning_content"
+          },
+          "time": {
+            "created": 1793566136698,
+            "completed": 1793566143842
+          }
+        },
+        {
+          "type": "text",
+          "text": "Não foi abandonado — foi **adiado explicitamente**, e está registrado assim nos dois documentos:\n\n- **Pesquisa, §2.9** (`01-research.md:831`): a seção se chama literalmente \"Campo harmônico e transposição (argumentos; decisão adiada)\" — os argumentos pró e contra ficam medidos e guardados para uma decisão futura.\n- **Proposta, \"Fora do escopo\"** (`02-proposal.md:241`): \"Campo harmônico, transposição e matching por graus (`NCIFRA`): a decisão está adiada no §2.9 e muda a unidade de comparação, não só o armazenamento; aplicá-la às 6 quebraria a regressão.\"\n\nOs motivos práticos do adiamento, medidos na pesquisa:\n\n1. **Quebra a regressão das 6.** Comparar por graus leva `C G Am F` de 296 para 1.877 matches (6,3×) e por transposição para 1.260 (4,3×) — nenhuma das leituras reproduz a tag 514/514, então não dá para ligar isso junto com a persistência sem mudar o contrato do produto.\n2. **`NCIFRA` perde informação**: qualidade, modo e inversão (`vi` vira `VI`, `C` = `C7` = `Cmaj7`); 7,48% dos tokens saem sem grau.\n3. **`TOM` é o elo fraco**: 805 músicas sem tom, e um tom errado produz graus errados em silêncio.\n4. Tem uma decisão de produto embutida (o usuário digita graus? informa o tom? o sistema infere?) que a pesquisa deixou aberta.\n\nNada no plano atual fecha essa porta: o matching novo é uma função sobre tokens, e o artefato offline (`NCIFRA` para 87% das músicas) continua existindo. Se a regra A se mostrar estreita em uso, a proposta manda retomar primeiro a regra C (bloco contíguo sem vocabulário exato), e campo harmônico fica como decisão separada para aquela fase."
+        }
+      ],
+      "snapshot": {
+        "start": "f70c5afb5993c12d6e75c2d35a6c6deda6658ddb",
+        "end": "f70c5afb5993c12d6e75c2d35a6c6deda6658ddb",
+        "files": []
+      },
+      "finish": "stop",
+      "rawFinish": "stop",
+      "cost": 0,
+      "tokens": {
+        "input": 2573,
+        "output": 547,
+        "reasoning": 389,
+        "cache": {
+          "read": 31808,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_198df757a0017IqLoefC3owm80",
+      "time": {
+        "created": 1793566143866
+      },
+      "type": "idle",
+      "outcome": "succeeded"
+    },
+    {
+      "id": "msg_198e2a30b001F7f7TqxUKb97xz",
+      "time": {
+        "created": 1793566352192
+      },
+      "text": "1. o teste compara ordem dos ids, mas a ordem muda entre os processos por conta do PYTHONHASHSEED (ta na pesquisa §2.4) 2. o default /app/dados/sequencias.db quebra rodando local com python main.py no mac, nao existe /app. usa caminho relativo dados/sequencias.db, que no container cai em /app/dados pelo workdir. 3. o passo 4 ta grande, quebra em pedacos menores. atualiza o 03-plan.md",
+      "files": [],
+      "agents": [],
+      "type": "user"
+    },
+    {
+      "id": "msg_198e2a351001i9xbAhZFYkEZ3y",
+      "time": {
+        "created": 1793566352218,
+        "streamed": 1793566417692,
+        "completed": 1793566417843
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "kimi-k3",
+        "providerID": "opencode-go",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The user raises three valid points:\n\n1. The test compares ordered ID lists, but order varies between processes due to PYTHONHASHSEED (research §2.4). So the gabarito can't be compared as ordered lists across processes — need to compare as sets, or compare order within the same process. Wait — let me think. The order issue: the current `/similares?sequencia=` iterates `apply_filtro(musicas.values(), generos_key)` — `musicas` is an OrderedDict sorted by popularity, so iteration order is deterministic... but wait, `generos` is a `set` converted to `list(generos)` at line 92 — `generos = list(generos)` — the order of that list depends on hash randomization (PYTHONHASHSEED)! So `apply_filtro` iterates over `generos_key` which is `generos` (a list built from a set), whose order varies between processes. So the concatenated collection order varies between processes. That's the §2.4 finding: \"o fato de a ordem variar entre processos (PYTHONHASHSEED, §2.4) continua existindo\".\n\nSo comparing ordered lists between the gabarito (generated in one process) and the new code (running in a test in another process) would fail spuriously. Fix: compare as **sets** (or sorted lists) for the regression contract, and separately assert within the same process that the new function's order matches the old function's order (i.e., in one process, call both `get_similares_por_sequencia` and `busca_por_sequencia` and compare ordered lists — that's deterministic within a single process). That's the clean fix:\n- Cross-process gabarito comparison: sorted IDs (set equality).\n- Order preservation: intra-process comparison old vs new (while the old function still exists), which is deterministic.\n\nAlso the proposal says \"o fato de a ordem variar entre processos (PYTHONHASHSEED, §2.4) continua existindo, porque corrigi-lo é decisão de produto\" — so the plan should acknowledge that order equality is only checkable within a process, and the gabarito fixture stores sorted IDs maybe, or stores the order but tests compare sorted. Better: store sorted lists in the fixture, or store as-is but compare sorted in tests. Simplest: test compares `sorted(novos_ids) == sorted(gabarito_ids)`. And an additional same-process test for order parity between old and new implementations (only valid during the transition, while `get_similares_por_sequencia` still exists). Also the API page-1 test comparing \"100 primeiros ids do gabarito\" has the same problem — page 1 across processes differs! So that check must go: page 1 comparison vs gabarito is not stable. Replace with: `/similares?sequencia=Bm,G,D,A` returns 100 items (TAM_PAGINA) and all of them are in the gabarito set. Hmm, but actually within the same test process, if we import main and call both, order is consistent... the API test runs in one process: test_client calls the endpoint, and the gabarito was generated in another process. So cross-process again — order not comparable. Only set membership is comparable.\n\nWait, actually — is order within page 1 deterministic given the same PYTHONHASHSEED? Yes, but tests don't set PYTHONHASHSEED, and even if they did, the gabarito was generated with a different one. So: compare sets.\n\nAlso note `musica.acordes = list(set(cifra))` in musica.py — another hash-order-dependent spot, but that affects `acordes` field content order, not the similar list. Not our concern here.\n\n2. Default `/app/dados/sequencias.db` breaks local `python main.py` on macOS — `/app` doesn't exist (makedirs would create /app/dados at root? Actually `os.makedirs('/app/dados')` on macOS would fail with permission denied trying to create /app at filesystem root). Fix: default `dados/sequencias.db` (relative); in the container WORKDIR is /app so it lands in /app/dados, matching the VOLUME. The proposal says default `/app/dados/sequencias.db` — the user is now overriding that decision with a relative path. This affects ADR 0002? The ADR says \"arquivo único em /app/dados/sequencias.db\" — with the relative default, in the container it's still /app/dados/sequencias.db (because WORKDIR /app). Locally it's ./dados/sequencias.db. The plan just needs updating; the ADR statement remains true for the container. Should I update the ADR? The user said \"atualiza o 03-plan.md\" — only the plan. Minimal change: update plan only.\n\nAlso `.dockerignore` gets `dados/` — still correct (prevents COPY of local dev db). And .gitignore probably should get dados/ too? The user didn't ask; .gitignore has .venv, __pycache__, *.pyc. A local `dados/sequencias.db` would show up in git status. Hmm — adding to .gitignore is a natural consequence but the user said only update the plan with these three points. The plan's files table lists .dockerignore; I could add .gitignore row... The user's instruction: \"atualiza o 03-plan.md\" with the three fixes. Adding .gitignore mention is arguably part of fix 2 (local dev creates dados/). But minimal: I could mention it in the docker/docs step. I think it's justified and small: when running locally, `dados/sequencias.db` appears in the repo, so `.gitignore` should ignore `dados/`. I'll add it to the step 5/6 (docker/docs) and files table — it's directly a consequence of the new default. Actually, let me be careful about \"Only make changes that are directly requested\". The relative-path change directly implies the local file appears in the working tree; ignoring it is standard hygiene. I'll add one line. That seems reasonable and helpful rather than scope creep.\n\n3. Step 4 is big — break it into smaller pieces. Current step 4 includes: init+seed at boot, GET /sequencias, POST /sequencias with validations, /similares rewiring, pagina validation, remove dict. Break into:\n\n- 4a. Boot wiring: init db + seed after CSV load, SEQUENCIAS_DB env, remove nothing yet. Verify: server boots, db file created with 6 seeds (check via sqlite3 CLI or a test).\n- 4b. GET /sequencias with total_musicas. Verify: unittest + curl.\n- 4c. POST /sequencias happy path (201/200 idempotent). Verify: unittest.\n- 4d. POST validations (400 corpo_invalido, sequencia_vazia, acorde_desconhecido com sugestao). Verify: unittest.\n- 4e. /similares resolves by chave + pagina validation + remove hardcoded dict. Verify: regression test vs gabarito (sets), unittest for 400 pagina, curl.\n\nSo renumber: 1 gabarito, 2 matching, 3 db layer, 4 boot+init/seed, 5 GET, 6 POST create/idempotent, 7 POST validations, 8 /similares rewire + pagina + remove dict, 9 Docker/docs, 10 frontend. That's 10 steps — each small with verification.\n\nNow fix 1 implications throughout:\n- Step 1 (gabarito): note that stored order is process-specific; tests compare sorted. Maybe store sorted IDs in the fixture to make the semantics explicit. Good: \"listas de ids ordenadas (sorted), porque a ordem de iteração varia entre processos (PYTHONHASHSEED, §2.4)\". And keep a same-process order-parity check in step 2.\n- Step 2 verification: two tests: (a) set equality per sequence vs gabarito; (b) same-process order parity: `busca_por_sequencia` vs `get_similares_por_sequencia` return identical ordered lists within the same run (this is the real order check, deterministic intra-process). Plus the A7 D A edge case == 1.\n- Step 8 (/similares): page-1-vs-gabarito check must change: assert page 1 has 100 items all belonging to the gabarito set (since cross-process order differs). Within-process parity: call endpoint via test_client and compare with... hmm, in the test process, the endpoint iterates the same in-memory structures as a direct call to busca_por_sequencia — so we CAN compare endpoint page 1 against `get_pagina(busca_por_sequencia(...), 1)` computed in the same process. That's a legitimate intra-process check. But comparing to the fixture's first 100 — not valid. So: \"página 1 do endpoint confere com get_pagina(busca_por_sequencia(...), '1') no mesmo processo; e o conjunto de ids da página pertence ao gabarito\".\n- Definição de pronto: \"a página 1 casa os 100 primeiros\" — fix: regressão automatizada por conjunto (sorted), and order parity checked intra-process. Rewrite that bullet.\n\nAlso riscos: the \"Ordem da resposta mudar\" risk needs updating: mitigate with intra-process parity test; acknowledge cross-process order variance is pre-existing (§2.4) and out of scope to fix.\n\nNote re sorting in fixture: sorting id_unico_musica strings — fine, deterministic.\n\nLet me now rewrite the plan file. Keep structure: title, constraints, Passos, Arquivos afetados, Riscos, Definição de pronto.\n\nFiles table: add `.gitignore` (dados/). Adjust `sequencias_db.py` row: default `dados/sequencias.db` (relativo; no container cai em `/app/dados` pelo WORKDIR).\n\nStep details:\n\n**Passo 1 — gabarito.** Same as before but: gravar ids em ordem alfabética (sorted) com nota do porquê (ordem de iteração varia entre processos, §2.4). Verification: run script, totals match (bm;g;d;a = 199), 6 keys non-empty.\n\n**Passo 2 — matching.** Same, plus verification: (a) unittest compara `sorted(ids_novos) == gabarito[chave]` para as 6; (b) no mesmo processo, `busca_por_sequencia` devolve lista na mesma ordem que `get_similares_por_sequencia` (paridade de ordem intra-processo, que é onde a ordem é determinística); (c) A7 D A == 1.\n\n**Passo 3 — sequencias_db.py.** Default now `dados/sequencias.db` via SEQUENCIAS_DB. makedirs do diretório. Verify same unit tests.\n\n**Passo 4 — boot.** init+seed after CSV load in main.py. Verify: `SEQUENCIAS_DB=$(mktemp) python -c \"import main\"`? Simpler: unittest or command: rodar `SEQUENCIAS_DB=/tmp/seq-test.db python main.py`, checar que o arquivo existe e tem 6 linhas: `sqlite3 /tmp/seq-test.db 'select count(*) from sequencias'` → 6 (sqlite3 CLI exists on mac by default). Or a unittest asserting seed at import with temp env. Keep it as command check: curl /generos still works + sqlite3 count = 6. Actually macOS has sqlite3 CLI. Good.\n\n**Passo 5 — GET /sequencias.** total_musicas na hora. Verify: unittest (6 entries, campos, total > 0, bm;g;d;a total == len(gabarito['bm;g;d;a']) — nice set-based check!) + curl.\n\n**Passo 6 — POST create + idempotente.** 201 com existente:false; repeat 200 existente:true mesmo id. Verify unittest + curl.\n\n**Passo 7 — POST validations.** 400×3 with sugestao. Verify unittest with cases: `{}`/não-JSON → corpo_invalido; `{\"acordes\":[]}` ou tokens em branco → sequencia_vazia; `[\"cb\"]` → acorde_desconhecido com sugestao (\"Cb\" vs... hmm, actual example from proposal: acorde cb devolve sugestao null. Sugestao exists when a case-insensitive match exists, e.g. \"BM\" → sugestao \"Bm\"? Proposal: \"se existir um token igual ignorando a caixa, a resposta traz sugestao\". Since matching lowers input before validation? Wait — validation: \"Acorde fora do vocabulário do dataset → 400 com o token recusado, validando contra o set acordes, comparação exata; se existir um token igual ignorando a caixa, a resposta traz sugestao.\" Hmm but then \"BM\" would 400 with sugestao \"Bm\"? But the chave is lowercase and matching is case-insensitive... The POST flow: tokens lowered for chave; but validation against the acordes set is exact-case? That seems odd — \"bm\" lowercase wouldn't be in the acordes set (\"Bm\" is). Hmm, let me re-read: \"Acorde fora do vocabulário do dataset → 400 com o token recusado, validando contra o set acordes (main.py:39, 6.653 tokens...), comparação exata; se existir um token igual ignorando a caixa, a resposta traz sugestao.\"\n\nWait, but if you POST {\"acordes\": [\"bm\",\"g\",\"d\",\"a\"]} (all lowercase), validation exact against set fails (\"bm\" not in acordes — \"Bm\" is), and sugestao would be \"Bm\" for each? That would make lowercase input fail, contradicting the idempotent chave-lowering. Hmm. Actually maybe validation is case-insensitive pass: if token (exact) in acordes → ok; elif token.lower() matches some acorde ignoring case → also ok? No... Let me think about what's sensible: the proposal says comparison exact for rejection, with sugestao when a case-insensitive twin exists. So \"bm\" → not exact → but case-insensitive twin \"Bm\" exists → 400 with sugestao \"Bm\"? That means POSTing lowercase fails. But GET /similares lowers case... and the chave is stored lowercase from whatever was digitado. So the catalog chave for Bm G D A is \"bm;g;d;a\" regardless.\n\nHmm, but does POST \"bm g d a\" create a duplicate? The chave would be \"bm;g;d;a\" — same as seed. If POST lowercased input 400s, that's a UX wart but it's what the proposal says. Wait, actually — maybe validation accepts if a case-insensitive match exists, and the 400+sugestao is only for tokens with no match at all... no: \"400 {\"erro\": \"acorde_desconhecido\", \"acordes\": [{\"acorde\": \"cb\", \"sugestao\": null}]}\" — example shows sugestao null. When would sugestao be non-null? E.g. \"bm\" → sugestao \"Bm\". So POST \"Bm G D A\" works; POST \"bm g d a\" → 400 com sugestao \"Bm\"? That can't be right for idempotency...\n\nHold on, maybe validation happens on tokens as-digitado, and if exact match fails but case-insensitive succeeds, it's still a 400 with sugestao telling you the right grafia. The frontend datalist prevents free typing anyway. Hmm, but that means the API rejects lowercase even though /similares accepts it. Inconsistent but it's literally what the proposal says. I'm not going to resolve this design question in the plan update — the user asked for 3 specific fixes. Keep the plan text as-is on this point (\"400 com sugestao quando houver grafia igual ignorando caixa\") — it mirrors the proposal. Fine.\n\n**Passo 8 — /similares rewire.** Parse comma+strip, lower, resolve chave; [] 200 if missing; pagina validated ≥1 → 400; remove dict. Verify: unittest — page 1 equals get_pagina(busca_por_sequencia(...),1) same process; all page-1 ids ∈ gabarito set; \"Bm, G, D, A\" works; pagina=abc → 400; sequência inexistente → [] 200. Plus curl smoke.\n\n**Passo 9 — Docker/docs.** Same + .gitignore dados/.\n\n**Passo 10 — Frontend.** Same.\n\nRiscos updates:\n- Replace risk 1 with PYTHONHASHSEED one: cross-process order varies (§2.4, pré-existente); fixture stores sorted ids; paridade de ordem só é verificável dentro do mesmo processo — teste intra-processo enquanto a função velha existe. Not fixing the variance (product decision, out of scope).\n- Keep others; add risk about relative default: local dev cria dados/ no checkout → .gitignore + .dockerignore; caminho relativo depende do cwd — no container o WORKDIR é /app, então cai em /app/dados; rodar `python main.py` de outro diretório criaria dados/ lá (mesmo comportamento do CSV, que já usa caminho relativo 'data/top/...'). Good point: main.py already requires running from repo root due to CSV relative path, so relative dados/ is consistent.\n\nDefinição de pronto updates:\n- Regressão: conjuntos de ids (sorted) idênticos ao fixture; paridade de ordem intra-processo coberta no passo 2.\n- Remove \"página 1 casa os 100 primeiros\" → replace.\n- Keep docker cycle, etc.\n- Maybe add: `python main.py` local (fora do Docker) sobe e cria dados/sequencias.db sem erro — that's a checkable criterion for fix 2. Good: \"rodar python main.py local no mac cria dados/sequencias.db (sem /app) e o cadastro sobrevive a restart do processo\".\n\nAlso constraints paragraph at top: update default path mention? The constraints mention nothing about path currently. Fine.\n\nNow rewrite the file. Full rewrite is cleaner than many edits.\n\nAlso keep the note \"Baseado em...\" header. Renumber steps 1-10. Keep each step tight.\n\nLet me write it.",
+          "native": {
+            "reasoningField": "reasoning_content"
+          },
+          "time": {
+            "created": 1793566353306,
+            "completed": 1793566417684
+          }
+        },
+        {
+          "type": "text",
+          "text": "Os três pontos fazem sentido — o §2.4 realmente inviabiliza comparar ordem entre processos, e o default absoluto quebraria o `python main.py` local. Reescrevendo o plano:"
+        },
+        {
+          "type": "tool",
+          "id": "write_0_7f85721a",
+          "name": "write",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "path": "docs/features/sequencias-customizadas/03-plan.md",
+              "content": "# Plano — Sequências de Acordes Customizadas\n\nBaseado em `02-proposal.md` e `docs/adr/0002-persist-custom-sequences.md`.\nRestrições fixas: testes com `unittest` da stdlib (zero dependência nova em\n`requirements.txt`); `main.py` continua servindo `json.dumps` com\n`Content-Type: text/html`; a regressão das 6 sequências é o contrato do produto.\n\nDuas restrições que atravessam o plano:\n\n- **Ordem não é contrato entre processos.** A ordem dos resultados de\n  `/similares?sequencia=` varia com `PYTHONHASHSEED` (§2.4 da pesquisa) —\n  comportamento pré-existente, fora do escopo corrigir. Por isso o gabarito\n  grava ids **ordenados alfabeticamente** e toda comparação entre processos é\n  de conjunto; paridade de ordem só se verifica **dentro do mesmo processo**.\n- **Banco em caminho relativo.** Default de `SEQUENCIAS_DB` é\n  `dados/sequencias.db` (não `/app/dados/...`, que não existe no mac). No\n  container o `WORKDIR` é `/app`, então o arquivo cai em\n  `/app/dados/sequencias.db` — mesmo lugar de antes, mesmo volume. Localmente\n  cai no checkout, coerente com o CSV, que já exige rodar da raiz.\n\n## Passos\n\n1. [ ] **Gabarito da regressão com o código atual (antes de tocar em\n   `main.py`).** Criar `scripts/gerar_gabarito_sequencias.py`: importa `main`,\n   chama `get_similares_por_sequencia(id_seq, generos)` para `id_seq` 0–5,\n   grava `tests/fixtures/gabarito_sequencias.json` com\n   `{chave: [id_unico_musica, ...]}` — **ids em `sorted()`**, porque a ordem\n   de iteração varia entre processos (§2.4). Chaves: `bm;g;d;a`, `c;g;am;f`,\n   `em;g`, `c;a7;dm;g7`, `gm;f`, `c;c7;f;fm`. O fixture é commitado.\n   **Verificação:** `python scripts/gerar_gabarito_sequencias.py` imprime os 6\n   totais; conferir que batem com a pesquisa (`bm;g;d;a` = 199) e que o JSON\n   tem 6 chaves com listas não vazias.\n\n2. [ ] **Matching pela regra A com índice por vocabulário, sem mexer nas\n   rotas.** Em `main.py`, no load do CSV: montar `cifra_borda` por música\n   (`';' + ';'.join(tokens minúsculos) + ';'`) e o índice\n   `frozenset(acordes) -> [músicas]`, com as listas construídas na ordem de\n   `musicas.values()` (mesma iteração de `apply_filtro`). Nova função\n   `busca_por_sequencia(tokens)` faz lookup no índice + teste de substring com\n   bordas, devolvendo os mesmos campos de `get_similares_por_sequencia`.\n   **Verificação:** `python -m unittest tests.test_matching`, com três testes:\n   (a) para cada uma das 6, `sorted(ids novos) == gabarito[chave]`;\n   (b) **no mesmo processo**, `busca_por_sequencia` devolve a lista na mesma\n   ordem de `get_similares_por_sequencia` (a ordem só é determinística dentro\n   de um processo, então é aqui que ela se confere, enquanto a função velha\n   existe); (c) borda: `[\"A7\",\"D\",\"A\"]` devolve exatamente 1 música (não 17\n   por prefixo).\n\n3. [ ] **Camada SQLite em módulo novo `sequencias_db.py`.** Conexão por\n   chamada; `PRAGMA journal_mode=WAL`, `busy_timeout=5000`,\n   `foreign_keys=ON`; esquema da tabela `sequencias` (proposta §Esquema) com\n   `UNIQUE(chave)`; `PRAGMA user_version = 1` conferido no init; seed das 6\n   com `INSERT OR IGNORE` e `origem='seed'`; funções `listar()`,\n   `inserir_ou_obter(tokens)` (devolve `(linha, criada)`),\n   `buscar_por_chave(chave)`. Caminho via `SEQUENCIAS_DB`, default\n   `dados/sequencias.db` (relativo), com `makedirs` do diretório no init.\n   **Verificação:** `python -m unittest tests.test_sequencias_db` — usa\n   arquivo temporário: schema criado, `user_version=1`, seed insere as 6 na\n   ordem certa, seed repetido não duplica, `inserir_ou_obter` duplicado\n   devolve a linha existente com `criada=False`.\n\n4. [ ] **Boot: init do banco + seed, sem mudar rota nenhuma.** Em `main.py`,\n   depois do load do CSV: chamar o init de `sequencias_db.py` (cria diretório,\n   schema, confere `user_version`) e rodar o seed das 6. Nenhum endpoint novo\n   ainda; o dict `sequencias` continua em uso.\n   **Verificação:** `SEQUENCIAS_DB=/tmp/seq-boot.db python main.py` sobe sem\n   erro; em outro terminal,\n   `sqlite3 /tmp/seq-boot.db 'select count(*), origem from sequencias group by origem'`\n   devolve 6 linhas `seed`; `curl localhost:5000/generos` continua devolvendo\n   o JSON de gêneros.\n\n5. [ ] **`GET /sequencias`.** Devolve\n   `[{id, acordes, origem, total_musicas}]`, com `total_musicas` calculado na\n   hora via `busca_por_sequencia`. Resposta em `json.dumps`, como sempre.\n   **Verificação:** `python -m unittest tests.test_api` (test_client com\n   `SEQUENCIAS_DB` temporário setado antes de importar `main`): lista tem as\n   6 sementes, e `total_musicas` de `bm;g;d;a` é igual a\n   `len(gabarito[\"bm;g;d;a\"])`. Mais `curl localhost:5000/sequencias` com o\n   servidor de pé.\n\n6. [ ] **`POST /sequencias`: criação e idempotência.** Corpo\n   `{\"acordes\": [...]}` válido → 201 `{\"id\", \"acordes\", \"existente\": false,\n   \"total_musicas\"}`; mesma chave de novo → 200 com `existente: true` e mesmo\n   `id`. Chave = tokens em minúsculas unidos por `;`, na ordem digitada;\n   `acordes` guardado como digitado.\n   **Verificação:** unittest — POST cria, GET passa a listar 7, POST repetido\n   devolve 200 com o mesmo `id` e a lista continua com 7. Mais um\n   `curl -X POST` manual.\n\n7. [ ] **`POST /sequencias`: os três 400.** Corpo que não é JSON com\n   `acordes` → `corpo_invalido`; lista vazia ou tokens em branco/separadores\n   → `sequencia_vazia`; token fora do set `acordes` → `acorde_desconhecido`\n   com `sugestao` quando existir grafia igual ignorando caixa (validação\n   exata contra o set, como na proposta).\n   **Verificação:** unittest cobrindo cada 400 — status, campo `erro` e, no\n   caso do acorde, presença de `sugestao` preenchida para grafia com caixa\n   errada e `null` para token inexistente.\n\n8. [ ] **`/similares?sequencia=` resolve pelo catálogo; remove o dict\n   hardcoded.** Separar por vírgula, `strip`, descartar vazio, baixar caixa,\n   montar a chave e buscar no catálogo; não existe → `[]` com 200, como hoje.\n   `pagina` validada como inteiro ≥ 1 (400 em vez do 500 de hoje). Apagar o\n   dict `sequencias` e a função `get_similares_por_sequencia`.\n   **Verificação:** unittest — página 1 do endpoint idêntica a\n   `get_pagina(busca_por_sequencia(tokens), '1')` calculada **no mesmo\n   processo**; todos os ids da página 1 pertencem ao conjunto do gabarito;\n   `Bm, G, D, A` (com espaços) funciona; sequência inexistente → `[]` 200;\n   `pagina=abc` → 400; `/similares?acordes=` e `/search` intactos. Depois,\n   suíte inteira: `python -m unittest discover -s tests`.\n\n9. [ ] **Docker e documentação.** `Dockerfile` ganha `RUN mkdir -p /app/dados`\n   e `VOLUME [\"/app/dados\"]`; `dados/` entra no `.dockerignore` **e no\n   `.gitignore`** (o default relativo cria o banco no checkout em dev); README\n   e AGENTS documentam\n   `docker run -v deciframe-dados:/app/dados -p 8080:8080 ciframe` e o\n   comportamento sem volume.\n   **Verificação:** `docker build -t ciframe .`; subir com o volume, cadastrar\n   uma sequência via `curl -X POST`, `docker rm -f` no container, subir de\n   novo com o mesmo volume → `curl localhost:8080/sequencias` ainda mostra a\n   sequência. Repetir sem volume e confirmar que o cadastro some após\n   `docker rm` (comportamento documentado). E localmente: `python main.py`\n   cria `dados/sequencias.db` sem erro de permissão.\n\n10. [ ] **Frontend mínimo.** `sequencia.js`: remover os 4 objetos hardcoded,\n    carregar `GET /sequencias` no início do controller montando\n    `{acorde, cor}` para o `df-hex`; formulário acima da lista com campo que\n    aceita espaço ou vírgula, `datalist` alimentado por `GET /acordes`, e\n    botão que faz `POST /sequencias`; em 201/200 recarregar a lista e\n    selecionar a sequência; em 400 exibir a mensagem do servidor (incluindo a\n    `sugestao`). `sequencia.html`: mostrar `total_musicas` em cada bloco; não\n    tocar no `ng-hide=\"music.diferenca.length\"` nem no\n    `orderBy:'-popularidade'`.\n    **Verificação:** checklist manual no navegador — a página lista as 6 do\n    backend com totais; cadastro pela UI funciona e a nova fica selecionada;\n    erro de acorde desconhecido aparece com a sugestão; resultados da busca\n    batem com o `curl /similares?sequencia=` correspondente.\n\n## Arquivos afetados\n\n| Arquivo | Mudança |\n|---|---|\n| `main.py` | Índice por vocabulário + `cifra_borda` no load; `busca_por_sequencia`; init + seed no boot; `GET/POST /sequencias`; `/similares` resolve por chave e valida `pagina`; remove dict `sequencias` e `get_similares_por_sequencia` |\n| (novo) `sequencias_db.py` | Acesso ao SQLite: schema, pragmas, `user_version`, seed idempotente, CRUD do catálogo; default relativo `dados/sequencias.db` |\n| (novo) `scripts/gerar_gabarito_sequencias.py` | Gera `tests/fixtures/gabarito_sequencias.json` (ids ordenados) com o código atual |\n| (novo) `tests/test_matching.py`, `tests/test_sequencias_db.py`, `tests/test_api.py` | Regressão do gabarito, unidade do banco, contrato dos endpoints (unittest puro) |\n| `musica.py` | Nenhuma |\n| `static/assets/js/controllers/sequencia.js` | Catálogo via `GET /sequencias`; formulário de cadastro com `datalist`; trata 201/200/400 |\n| `static/templates/sequencia.html` | Form de cadastro; `total_musicas` por sequência |\n| `Dockerfile` | `RUN mkdir -p /app/dados` + `VOLUME [\"/app/dados\"]` |\n| `.dockerignore`, `.gitignore` | Adiciona `dados/` nos dois |\n| `README.md`, `AGENTS.md` | Comando `docker run` com volume nomeado; comportamento sem volume |\n\n## Riscos e mitigação\n\n- **Comparar ordem entre processos dá falso negativo.** A iteração varia com\n  `PYTHONHASHSEED` (§2.4), então o gabarito gravado num processo nunca bate\n  em ordem com outro. Mitigação: fixture com ids em `sorted()` e testes de\n  conjunto; paridade de ordem verificada só intra-processo (passo 2b), que é\n  onde ela é determinística. A variância em si é pré-existente e fica —\n  corrigi-la é decisão de produto, fora do escopo.\n- **Testes lentos e frágeis por importar `main.py`** (o load do CSV acontece\n  no import, ~4–6 s, e usa caminho relativo). Mitigação: aceitar um load por\n  rodada de testes, rodar sempre da raiz do repo, e setar `SEQUENCIAS_DB` para\n  arquivo temporário antes do import para isolar o banco de teste.\n- **Banco de desenvolvimento versionado ou assado na imagem.** O default\n  relativo cria `dados/sequencias.db` no checkout. Mitigação: `dados/` no\n  `.gitignore` e no `.dockerignore`; o caminho relativo é coerente com o CSV,\n  que já exige rodar da raiz.\n- **Seed duplicado se o número de workers mudar.** Mitigação: `INSERT OR\n  IGNORE` apoiado no `UNIQUE(chave)` (ADR 0002); hoje o gunicorn roda 1\n  worker, e o teste do passo 3 cobre a idempotência.\n- **Boot mais lento (+~1,3 s) e +~48 MB de memória.** Medido na pesquisa e\n  aceito na proposta; se incomodar em uso, o substituto direto é a varredura\n  com poda por vocabulário (2,8 ms), sem mudança de comportamento — decisão\n  já registrada, não entra neste plano.\n- **Frontend sem infra de teste automatizado.** Mitigação: checklist manual do\n  passo 10 com `curl` como oráculo de cada chamada que a página faz.\n\n## Definição de pronto\n\n- [ ] `python -m unittest discover -s tests -v` passa a partir da raiz, com\n  `requirements.txt` inalterado (só stdlib + Flask + gunicorn).\n- [ ] Regressão das 6 automatizada: para cada sequência do gabarito, o\n  conjunto de ids devolvido pelo código novo é idêntico ao fixture (comparação\n  ordenada alfabeticamente, imune a `PYTHONHASHSEED`); a paridade de ordem\n  intra-processo do passo 2b está verde.\n- [ ] `curl localhost:8080/sequencias` logo após o boot lista as 6 sementes\n  com `total_musicas > 0`.\n- [ ] Cadastro idempotente via API: `POST /sequencias` com sequência nova →\n  201; repetição → 200 com `existente: true` e mesmo `id`;\n  `/similares?sequencia=` com ela devolve resultado não vazio.\n- [ ] Persistência verificada em container: com\n  `docker run -v deciframe-dados:/app/dados -p 8080:8080 ciframe`, cadastrar\n  uma sequência, `docker rm -f` no container, subir de novo com o mesmo\n  volume → `GET /sequencias` ainda contém a sequência cadastrada.\n- [ ] Sem o volume, o cadastro não sobrevive a `docker rm` — e README e\n  AGENTS documentam os dois comportamentos.\n- [ ] Local sem Docker: `python main.py` cria `dados/sequencias.db` na raiz do\n  checkout (sem tocar em `/app`), e o cadastro sobrevive a restart do\n  processo.\n- [ ] UI `#/porsequencia`: lista as sequências do backend com o total de\n  músicas, cadastra pela página (a nova fica selecionada) e exibe as\n  mensagens dos 400, incluindo a sugestão de grafia.\n- [ ] Endpoints antigos intactos: `curl localhost:8080/generos` devolve o\n  JSON de gêneros e `/search` + `/similares?acordes=` continuam respondendo\n  como hoje.\n"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Wrote file successfully: docs/features/sequencias-customizadas/03-plan.md"
+              }
+            ],
+            "metadata": {
+              "truncated": false
+            }
+          },
+          "time": {
+            "created": 1793566389109,
+            "ran": 1793566417688,
+            "completed": 1793566417726
+          }
+        }
+      ],
+      "snapshot": {
+        "start": "f70c5afb5993c12d6e75c2d35a6c6deda6658ddb",
+        "end": "7060031f7d55ae7bd9efe7d86741379a63bdf745",
+        "files": [
+          "docs/features/sequencias-customizadas/03-plan.md"
+        ]
+      },
+      "finish": "tool-calls",
+      "rawFinish": "tool_calls",
+      "cost": 0,
+      "tokens": {
+        "input": 1092,
+        "output": 4307,
+        "reasoning": 4091,
+        "cache": {
+          "read": 34368,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_198e3a3c4001CdxfJGvKo45OHL",
+      "time": {
+        "created": 1793566417867,
+        "streamed": 1793566423434,
+        "completed": 1793566423457
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "kimi-k3",
+        "providerID": "opencode-go",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The file was written successfully. The task was to update 03-plan.md with the three fixes. That's done. I should briefly confirm what changed and stop — no further steps needed.",
+          "native": {
+            "reasoningField": "reasoning_content"
+          },
+          "time": {
+            "created": 1793566419420,
+            "completed": 1793566423429
+          }
+        },
+        {
+          "type": "text",
+          "text": "Plano atualizado com os três ajustes:\n\n1. **Ordem fora do contrato entre processos**: o gabarito agora grava os ids em `sorted()` (com a razão citada do §2.4), todas as comparações com o fixture viraram comparação de conjunto, e a paridade de ordem virou um teste intra-processo (passo 2b) — único lugar onde ela é determinística. O risco correspondente foi reescrito e a definição de pronto não exige mais \"página 1 idêntica ao gabarito\".\n\n2. **Caminho relativo**: default de `SEQUENCIAS_DB` passou a `dados/sequencias.db`, caindo em `/app/dados` no container via `WORKDIR` e no checkout localmente. Consequência registrada: `dados/` entra também no `.gitignore`, e a definição de pronto ganhou o critério \"roda `python main.py` local sem tocar em `/app`\".\n\n3. **Passo 4 fatiado**: virou os passos 4–8 (boot com init+seed; `GET /sequencias`; `POST` criação/idempotência; `POST` validações; `/similares` pelo catálogo com remoção do dict), cada um com sua verificação própria. Total: 10 passos.\n\nUma observação: o ADR 0002 menciona o default como `/app/dados/sequencias.db`; com o caminho relativo isso continua verdade no container, mas se quiser que o ADR registre o default relativo explicitamente, posso ajustar — não mexi porque você pediu só o plano."
+        }
+      ],
+      "snapshot": {
+        "start": "7060031f7d55ae7bd9efe7d86741379a63bdf745",
+        "end": "7060031f7d55ae7bd9efe7d86741379a63bdf745",
+        "files": []
+      },
+      "finish": "stop",
+      "rawFinish": "stop",
+      "cost": 0,
+      "tokens": {
+        "input": 8483,
+        "output": 408,
+        "reasoning": 37,
+        "cache": {
+          "read": 35456,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_198e3b9a7001m7p3CnFZvV0jmO",
+      "time": {
+        "created": 1793566423463
+      },
+      "type": "idle",
+      "outcome": "succeeded"
+    },
+    {
+      "id": "msg_198eace1c0016iMeEJQqZKRQtW",
+      "time": {
+        "created": 1793566887478
+      },
+      "text": "o teste 2b compara com get_similares_por_sequencia, mas o passo 8 apaga essa funcao, entao o 2b quebra depois do passo, e a definicao de pronto ainda exige ele verde. decide: ou o um ou outro. no passo 1 a verificacao tem que lsitar os 6 totais.",
+      "files": [],
+      "agents": [],
+      "type": "user"
+    },
+    {
+      "id": "msg_198eace3c0015rVbmZ0TY5OaL9",
+      "time": {
+        "created": 1793566887487,
+        "streamed": 1793566898340,
+        "completed": 1793566898411
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "kimi-k3",
+        "providerID": "opencode-go",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The user points out a real inconsistency: test 2b compares `busca_por_sequencia` order against `get_similares_por_sequencia`, but step 8 deletes `get_similares_por_sequencia`. So test 2b would break after step 8, and the definition of done still requires it green. Decide: one or the other.\n\nOptions:\n1. Keep the old function (don't delete it in step 8) — but that's dead code, the plan explicitly says remove the hardcoded dict and the function. Keeping a dead function just for a test is bad.\n2. Drop test 2b entirely — but then order parity is never verified. Is order parity actually needed? Cross-process order varies anyway (PYTHONHASHSEED), so order isn't a contract. Within-process parity was a nice-to-have to ensure the new code doesn't change order relative to old code in the same process. But since order isn't observable as a contract (varies between processes), the regression contract is really the *set* of IDs. The proposal says \"a mesma ordem de hoje (a iteração de get_similares_por_sequencia sobre apply_filtro)\" — the intent is the new code iterates in the same order, which is achieved by construction (index lists built iterating musicas.values()). So the check is a one-time verification during development, not a permanent test.\n3. Make 2b a temporary check: it lives only until step 8, then gets deleted together with the old function. That's messy for a committed test suite.\n4. Move the order-parity check into the gabarito generation step or make it a one-off script/manual verification at step 2, not a committed unittest.\n\nThe cleanest decision consistent with \"order is not a cross-process contract\": the permanent regression test is set-based (sorted IDs). Order parity is verified **once, manually/during step 2** (e.g., a one-off command comparing both functions in the same process), and not committed as a test — because step 8 removes the old function. Then the definition of pronto only requires the set-based regression green.\n\nAlternatively: keep 2b as a test but have step 8 *update* the test to compare against... what? There's nothing to compare against after the old function is gone. Could compare endpoint page-1 against `get_pagina(busca_por_sequencia(...))` in the same process — but that's testing the endpoint against itself basically (both use the same function). Actually that check (endpoint wiring) is in step 8 already and remains valid.\n\nThe user says \"decide: ou um ou outro\" — pick one. I should decide and justify briefly. \n\nDecision: drop the committed 2b test; keep order parity as a one-time verification command in step 2 (run once while the old function exists, not part of the suite), and the definition of pronto requires only the set-based regression. This keeps the suite green at every step including after step 8.\n\nWait — but if 2b is a one-time manual check, how is it verified? In step 2's verification: run a one-liner comparing both functions' outputs in the same process. That's checkable. Then step 8 deletes the old function and nothing breaks.\n\nActually, let me think about whether order parity even matters enough to keep as manual check. The concern: new matching must produce results in the same order as old within a process (so that page 1 contents are stable-ish per process and UX unchanged). Building index lists in musicas.values() order gives that by construction, but verifying once is cheap and catches bugs (e.g., iterating a set somewhere). Keep it as a manual one-time command in step 2.\n\nAlso user point 2: \"no passo 1 a verificacao tem que listar os 6 totais\" — the step 1 verification must list the 6 totals explicitly. So I need the 6 totals from research. I know bm;g;d;a = 199 (from proposal). What are the others? Let me check research §2.5 or wherever the 6 sequences' totals are. The proposal mentions: Bm G D A marca 199, D A Bm G 216, C G Am F 296 (mentioned \"de 296 literais\" in research line 655, and proposal §2.4 mentions \"199/296\"). Em G, C A7 Dm G7, Gm F, C C7 F Fm — need numbers. Let me grep the research doc for the tag counts. There's likely a table in §2.1 or §1.x listing the 6 tags with counts.\n\nLet me search 01-research.md for the counts of each of the 6 sequences.",
+          "native": {
+            "reasoningField": "reasoning_content"
+          },
+          "time": {
+            "created": 1793566888974,
+            "completed": 1793566898327
+          }
+        },
+        {
+          "type": "text",
+          "text": "Preciso dos 6 totais exatos para a verificação do passo 1 — vou buscar na pesquisa."
+        },
+        {
+          "type": "tool",
+          "id": "grep_0_9c97c1d8",
+          "name": "grep",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "pattern": "BmGDA|CGAmF|CA7DmG7|CC7FFm|GmF|EmG",
+              "path": "docs/features/sequencias-customizadas/01-research.md"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Found 39 matches\n/Users/julio/Documents/26.2/ciframe/docs/features/sequencias-customizadas/01-research.md:\n  Line 6: (`main.py:40-45`): `GET /similares?sequencia=BmGDA` remove as vírgulas da string\n\n  Line 77:   `'BmGDA': 0, 'CGAmF': 1, 'EmG': 2, 'CA7DmG7': 3, 'GmF': 4, 'CC7FFm': 5`\n\n  Line 83:   (`main.py:191`), resultado: `\"Bm,G,D,A\"` vira `\"BmGDA\"` — e comparada por\n\n  Line 102:   | `/similares?sequencia=BmGDA` | 100 |\n\n  Line 103:   | `/similares?sequencia=BmGDA&pagina=2` | 99 (total 199) |\n\n  Line 105:   | `/similares?sequencia=EmG` | 4 |\n\n  Line 272: | 0 | `BmGDA` | Sequência de Bm | 199 | 199 | 199 | 0 | 0 |\n\n  Line 273: | 1 | `CGAmF` | Sequência de C | 296 | 296 | 296 | 0 | 0 |\n\n  Line 274: | 2 | `EmG` | Sequência Em | 4 | 4 | 4 | 0 | 0 |\n\n  Line 275: | 3 | `CA7DmG7` | Sequência de C (Samba) | 5 | 5 | 5 | 0 | 0 |\n\n  Line 276: | 4 | `GmF` | Sequência de Gm | 7 | 7 | 7 | 0 | 0 |\n\n  Line 277: | 5 | `CC7FFm` | Sequência de C (Samba cont.) | 3 | 3 | 3 | 0 | 0 |\n\n  Line 309: | 0 | `BmGDA` | 773 | 667 | 196 | 5.569 | 4.564 | 110 / 111 |\n\n  Line 310: | 1 | `CGAmF` | 950 | 920 | 236 | 6.598 | 5.591 | 196 / 197 |\n\n  Line 311: | 2 | `EmG` | 3.700 | 3.106 | 0 | 14.156 | 13.639 | 257 / 1 |\n\n  Line 312: | 3 | `CA7DmG7` | 91 | 91 | 1 | 577 | 422 | 13 / 2 |\n\n  Line 313: | 4 | `GmF` | 1.515 | 1.032 | 0 | 3.840 | 3.634 | 127 / 0 |\n\n  Line 314: | 5 | `CC7FFm` | 141 | 129 | 0 | 362 | 277 | 16 / 0 |\n\n  Line 399: nunca pede a página 2 (`sequencia.js:73-76`) → para `BmGDA` e `CGAmF` a UI mostra\n\n  Line 491: (`BmGDA`), e `Am F C G` é rotação de `CGAmF`. Se \"rotação conta como\n\n  Line 564: | `?sequencia=BmGDA&pagina=abc` | **500** | — |\n\n  Line 565: | `?sequencia=BmGDA&pagina=0` | 200 | 0 |\n\n  Line 566: | `?sequencia=BmGDA&pagina=-1` | 200 | 99 |\n\n  Line 610: | `BmGDA` (catálogo) | 199 | 1.173 | 5,9× |\n\n  Line 611: | `CGAmF` (catálogo) | 296 | 1.260 | 4,3× |\n\n  Line 612: | `EmG` (catálogo) | 4 | 11 | 2,8× |\n\n  Line 613: | `CA7DmG7` (catálogo) | 5 | 32 | 6,4× |\n\n  Line 614: | `GmF` (catálogo) | 7 | 78 | 11,1× |\n\n  Line 615: | `CC7FFm` (catálogo) | 3 | 4 | 1,3× |\n\n  Line 741:   | `sequencia1` | `Bm, G, D, A` | `BmGDA` | 0 |\n\n  Line 742:   | `sequencia2` | `C, G, Am, F` | `CGAmF` | 1 |\n\n  Line 743:   | `sequencia3` | `Gm, F` | `GmF` | 4 |\n\n  Line 744:   | `sequencia4` | `C, C7, F, Fm` | `CC7FFm` | 5 |\n\n  Line 746:   Ficam de fora `EmG` (idx 2) e `CA7DmG7` (idx 3). Cada acorde é\n\n  Line 814: | D. Vocabulário exato, ordem ignorada | 947 matches; para sequências curtas (2 acordes) coincide com a tag (4/4 e 7/7) | 433 falsos positivos; ignora a progressão como sequência (só o conjunto); para `EmG`/`GmF` não distingue ordem nenhuma |\n\n  Line 818: | Casar qualquer rotação da sequência (tratar a progressão como loop) | pega a mesma progressão começada em outro ponto, mantendo ordem e adjacência | custa até n× a regra escolhida (4× para 4 acordes); muda as contagens contra a tag se aplicado às 6 (a união das rotações de `BmGDA` dá 240 contra 199); assume que a progressão é um ciclo, o que não vale para progressão linear |\n\n  Line 879:   nas 6, `CC7FFm` vai de 3 para 4, `EmG` de 4 para 11, `GmF` de 7 para 78 e\n\n  Line 880:   `BmGDA` de 199 para 1.173. A tag 514/514 é o único ground truth que existe\n\n  Line 911: | Dedupe por rotação (forma canônica = menor rotação) | reconhece a mesma progressão começada em outro ponto; barato (`min(rotacoes(seq))`) e determinístico | funde sequências que hoje dariam resultados diferentes (`BmGDA` 199 vs `D A Bm G` 216, união 240); impede cadastrar a rotação de propósito |\n"
+              }
+            ],
+            "metadata": {
+              "matches": 39,
+              "truncated": false
+            }
+          },
+          "time": {
+            "created": 1793566898075,
+            "ran": 1793566898334,
+            "completed": 1793566898381
+          }
+        }
+      ],
+      "snapshot": {
+        "start": "7060031f7d55ae7bd9efe7d86741379a63bdf745",
+        "end": "7060031f7d55ae7bd9efe7d86741379a63bdf745",
+        "files": []
+      },
+      "finish": "tool-calls",
+      "rawFinish": "tool_calls",
+      "cost": 0,
+      "tokens": {
+        "input": 9003,
+        "output": 127,
+        "reasoning": 1006,
+        "cache": {
+          "read": 35456,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_198eaf9050011EWFORngw1mbGV",
+      "time": {
+        "created": 1793566898448,
+        "streamed": 1793566919039,
+        "completed": 1793566919258
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "kimi-k3",
+        "providerID": "opencode-go",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The 6 totals from research §2.1 (lines 272-277):\n- `bm;g;d;a` (BmGDA): 199\n- `c;g;am;f` (CGAmF): 296\n- `em;g` (EmG): 4\n- `c;a7;dm;g7` (CA7DmG7): 5\n- `gm;f` (GmF): 7\n- `c;c7;f;fm` (CC7FFm): 3\n\nTotal: 199+296+4+5+7+3 = 514 ✓ (matches \"514 de 514\")\n\nNow the decision on 2b: drop the committed unittest comparing against `get_similares_por_sequencia` (since step 8 deletes it), and make order parity a one-time manual check run during step 2 while the old function still exists (a python -c one-liner comparing both in the same process). Definition of done then only requires the set-based regression. That's the cleaner choice — the alternative (keeping the dead function just for a test) violates minimal-change hygiene.\n\nUpdates needed:\n1. Step 1 verification: list all 6 totals explicitly (199, 296, 4, 5, 7, 3 — total 514).\n2. Step 2: change (b) from a unittest to a one-time manual verification command, and clarify the committed suite has only (a) and (c). \n3. Definition of pronto: remove the \"paridade de ordem intra-processo do passo 2b está verde\" clause — reword to just set-based regression.\n4. Risk section: adjust the mention of \"passo 2b\".\n\nLet me make targeted edits.\n\nCurrent step 2 text:\n\"**Verificação:** `python -m unittest tests.test_matching`, com três testes:\n(a) para cada uma das 6, `sorted(ids novos) == gabarito[chave]`;\n(b) **no mesmo processo**, `busca_por_sequencia` devolve a lista na mesma\nordem de `get_similares_por_sequencia` (a ordem só é determinística dentro\nde um processo, então é aqui que ela se confere, enquanto a função velha\nexiste); (c) borda: `[\"A7\",\"D\",\"A\"]` devolve exatamente 1 música (não 17\npor prefixo).\"\n\nNew step 2 verification: committed unittest has (a) set comparison and (b) edge case A7 D A. Plus a one-time manual order-parity check (not committed, deleted function dies in step 8): a python -c command comparing both functions in the same process.\n\nCurrent definição de pronto regression bullet:\n\"- [ ] Regressão das 6 automatizada: para cada sequência do gabarito, o\n  conjunto de ids devolvido pelo código novo é idêntico ao fixture (comparação\n  ordenada alfabeticamente, imune a `PYTHONHASHSEED`); a paridade de ordem\n  intra-processo do passo 2b está verde.\"\n\nNew: remove the 2b clause.\n\nRisk bullet mentions \"passo 2b\":\n\"Mitigação: fixture com ids em `sorted()` e testes de\nconjunto; paridade de ordem verificada só intra-processo (passo 2b), que é\nonde ela é determinística.\"\n\nNew: \"paridade de ordem conferida uma única vez, manualmente, no passo 2 (a função velha morre no passo 8, então ela não vira teste commitado)\".\n\nLet me write the edits now. I'll do three edit calls.",
+          "native": {
+            "reasoningField": "reasoning_content"
+          },
+          "time": {
+            "created": 1793566903918,
+            "completed": 1793566918987
+          }
+        },
+        {
+          "type": "text",
+          "text": "Os 6 totais estão na §2.1 da pesquisa (linhas 272–277): 199, 296, 4, 5, 7, 3 — somando 514, como esperado.\n\nSobre o 2b, decido **removê-lo da suíte**: manter `get_similares_por_sequencia` viva só para sustentar um teste seria código morto de propósito. Como a ordem não é contrato entre processos (§2.4) e a paridade intra-processo já vem por construção (listas do índice na ordem de `musicas.values()`), ela vira uma conferência manual única no passo 2, enquanto a função velha existe — e nada quebra no passo 8. Editando:"
+        },
+        {
+          "type": "tool",
+          "id": "edit_0_e013af3d",
+          "name": "edit",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "path": "docs/features/sequencias-customizadas/03-plan.md",
+              "oldString": "   **Verificação:** `python scripts/gerar_gabarito_sequencias.py` imprime os 6\n   totais; conferir que batem com a pesquisa (`bm;g;d;a` = 199) e que o JSON\n   tem 6 chaves com listas não vazias.",
+              "newString": "   **Verificação:** `python scripts/gerar_gabarito_sequencias.py` imprime os\n   totais, que têm de bater com a §2.1 da pesquisa: `bm;g;d;a` = 199,\n   `c;g;am;f` = 296, `em;g` = 4, `c;a7;dm;g7` = 5, `gm;f` = 7,\n   `c;c7;f;fm` = 3 (soma 514). O JSON tem 6 chaves com listas não vazias."
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Edited docs/features/sequencias-customizadas/03-plan.md (1 replacement)"
+              }
+            ],
+            "metadata": {
+              "files": [
+                {
+                  "file": "docs/features/sequencias-customizadas/03-plan.md",
+                  "patch": "Index: docs/features/sequencias-customizadas/03-plan.md\n===================================================================\n--- docs/features/sequencias-customizadas/03-plan.md\n+++ docs/features/sequencias-customizadas/03-plan.md\n@@ -26,11 +26,12 @@\n    grava `tests/fixtures/gabarito_sequencias.json` com\n    `{chave: [id_unico_musica, ...]}` — **ids em `sorted()`**, porque a ordem\n    de iteração varia entre processos (§2.4). Chaves: `bm;g;d;a`, `c;g;am;f`,\n    `em;g`, `c;a7;dm;g7`, `gm;f`, `c;c7;f;fm`. O fixture é commitado.\n-   **Verificação:** `python scripts/gerar_gabarito_sequencias.py` imprime os 6\n-   totais; conferir que batem com a pesquisa (`bm;g;d;a` = 199) e que o JSON\n-   tem 6 chaves com listas não vazias.\n+   **Verificação:** `python scripts/gerar_gabarito_sequencias.py` imprime os\n+   totais, que têm de bater com a §2.1 da pesquisa: `bm;g;d;a` = 199,\n+   `c;g;am;f` = 296, `em;g` = 4, `c;a7;dm;g7` = 5, `gm;f` = 7,\n+   `c;c7;f;fm` = 3 (soma 514). O JSON tem 6 chaves com listas não vazias.\n \n 2. [ ] **Matching pela regra A com índice por vocabulário, sem mexer nas\n    rotas.** Em `main.py`, no load do CSV: montar `cifra_borda` por música\n    (`';' + ';'.join(tokens minúsculos) + ';'`) e o índice\n",
+                  "status": "modified",
+                  "additions": 4,
+                  "deletions": 3
+                }
+              ],
+              "truncated": false
+            }
+          },
+          "time": {
+            "created": 1793566911295,
+            "ran": 1793566918991,
+            "completed": 1793566919056
+          }
+        },
+        {
+          "type": "tool",
+          "id": "edit_1_4c0e696f",
+          "name": "edit",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "path": "docs/features/sequencias-customizadas/03-plan.md",
+              "oldString": "   **Verificação:** `python -m unittest tests.test_matching`, com três testes:\n   (a) para cada uma das 6, `sorted(ids novos) == gabarito[chave]`;\n   (b) **no mesmo processo**, `busca_por_sequencia` devolve a lista na mesma\n   ordem de `get_similares_por_sequencia` (a ordem só é determinística dentro\n   de um processo, então é aqui que ela se confere, enquanto a função velha\n   existe); (c) borda: `[\"A7\",\"D\",\"A\"]` devolve exatamente 1 música (não 17\n   por prefixo).",
+              "newString": "   **Verificação:** `python -m unittest tests.test_matching`, com dois testes\n   commitados: (a) para cada uma das 6, `sorted(ids novos) ==\n   gabarito[chave]`; (b) borda: `[\"A7\",\"D\",\"A\"]` devolve exatamente 1 música\n   (não 17 por prefixo). Mais uma **conferência manual única**, não commitada\n   (a função velha morre no passo 8): no mesmo processo, comparar a ordem de\n   `busca_por_sequencia` com a de `get_similares_por_sequencia` para as 6 —\n   `python -c \"import main; ...\"` —, que é o único lugar onde a ordem é\n   determinística."
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Edited docs/features/sequencias-customizadas/03-plan.md (1 replacement)"
+              }
+            ],
+            "metadata": {
+              "files": [
+                {
+                  "file": "docs/features/sequencias-customizadas/03-plan.md",
+                  "patch": "Index: docs/features/sequencias-customizadas/03-plan.md\n===================================================================\n--- docs/features/sequencias-customizadas/03-plan.md\n+++ docs/features/sequencias-customizadas/03-plan.md\n@@ -38,15 +38,16 @@\n    `frozenset(acordes) -> [músicas]`, com as listas construídas na ordem de\n    `musicas.values()` (mesma iteração de `apply_filtro`). Nova função\n    `busca_por_sequencia(tokens)` faz lookup no índice + teste de substring com\n    bordas, devolvendo os mesmos campos de `get_similares_por_sequencia`.\n-   **Verificação:** `python -m unittest tests.test_matching`, com três testes:\n-   (a) para cada uma das 6, `sorted(ids novos) == gabarito[chave]`;\n-   (b) **no mesmo processo**, `busca_por_sequencia` devolve a lista na mesma\n-   ordem de `get_similares_por_sequencia` (a ordem só é determinística dentro\n-   de um processo, então é aqui que ela se confere, enquanto a função velha\n-   existe); (c) borda: `[\"A7\",\"D\",\"A\"]` devolve exatamente 1 música (não 17\n-   por prefixo).\n+   **Verificação:** `python -m unittest tests.test_matching`, com dois testes\n+   commitados: (a) para cada uma das 6, `sorted(ids novos) ==\n+   gabarito[chave]`; (b) borda: `[\"A7\",\"D\",\"A\"]` devolve exatamente 1 música\n+   (não 17 por prefixo). Mais uma **conferência manual única**, não commitada\n+   (a função velha morre no passo 8): no mesmo processo, comparar a ordem de\n+   `busca_por_sequencia` com a de `get_similares_por_sequencia` para as 6 —\n+   `python -c \"import main; ...\"` —, que é o único lugar onde a ordem é\n+   determinística.\n \n 3. [ ] **Camada SQLite em módulo novo `sequencias_db.py`.** Conexão por\n    chamada; `PRAGMA journal_mode=WAL`, `busy_timeout=5000`,\n    `foreign_keys=ON`; esquema da tabela `sequencias` (proposta §Esquema) com\n",
+                  "status": "modified",
+                  "additions": 8,
+                  "deletions": 7
+                }
+              ],
+              "truncated": false
+            }
+          },
+          "time": {
+            "created": 1793566912979,
+            "ran": 1793566918994,
+            "completed": 1793566919064
+          }
+        },
+        {
+          "type": "tool",
+          "id": "edit_2_51530127",
+          "name": "edit",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "path": "docs/features/sequencias-customizadas/03-plan.md",
+              "oldString": "  `PYTHONHASHSEED` (§2.4), então o gabarito gravado num processo nunca bate\n  em ordem com outro. Mitigação: fixture com ids em `sorted()` e testes de\n  conjunto; paridade de ordem verificada só intra-processo (passo 2b), que é\n  onde ela é determinística. A variância em si é pré-existente e fica —\n  corrigi-la é decisão de produto, fora do escopo.",
+              "newString": "  `PYTHONHASHSEED` (§2.4), então o gabarito gravado num processo nunca bate\n  em ordem com outro. Mitigação: fixture com ids em `sorted()` e testes de\n  conjunto; a paridade de ordem é conferida uma única vez, manualmente, no\n  passo 2 — não vira teste commitado porque o passo 8 apaga a função velha\n  que serviria de referência. A variância em si é pré-existente e fica —\n  corrigi-la é decisão de produto, fora do escopo."
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Edited docs/features/sequencias-customizadas/03-plan.md (1 replacement)"
+              }
+            ],
+            "metadata": {
+              "files": [
+                {
+                  "file": "docs/features/sequencias-customizadas/03-plan.md",
+                  "patch": "Index: docs/features/sequencias-customizadas/03-plan.md\n===================================================================\n--- docs/features/sequencias-customizadas/03-plan.md\n+++ docs/features/sequencias-customizadas/03-plan.md\n@@ -156,10 +156,11 @@\n \n - **Comparar ordem entre processos dá falso negativo.** A iteração varia com\n   `PYTHONHASHSEED` (§2.4), então o gabarito gravado num processo nunca bate\n   em ordem com outro. Mitigação: fixture com ids em `sorted()` e testes de\n-  conjunto; paridade de ordem verificada só intra-processo (passo 2b), que é\n-  onde ela é determinística. A variância em si é pré-existente e fica —\n+  conjunto; a paridade de ordem é conferida uma única vez, manualmente, no\n+  passo 2 — não vira teste commitado porque o passo 8 apaga a função velha\n+  que serviria de referência. A variância em si é pré-existente e fica —\n   corrigi-la é decisão de produto, fora do escopo.\n - **Testes lentos e frágeis por importar `main.py`** (o load do CSV acontece\n   no import, ~4–6 s, e usa caminho relativo). Mitigação: aceitar um load por\n   rodada de testes, rodar sempre da raiz do repo, e setar `SEQUENCIAS_DB` para\n",
+                  "status": "modified",
+                  "additions": 3,
+                  "deletions": 2
+                }
+              ],
+              "truncated": false
+            }
+          },
+          "time": {
+            "created": 1793566915503,
+            "ran": 1793566919004,
+            "completed": 1793566919074
+          }
+        },
+        {
+          "type": "tool",
+          "id": "edit_3_931645e7",
+          "name": "edit",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "path": "docs/features/sequencias-customizadas/03-plan.md",
+              "oldString": "- [ ] Regressão das 6 automatizada: para cada sequência do gabarito, o\n  conjunto de ids devolvido pelo código novo é idêntico ao fixture (comparação\n  ordenada alfabeticamente, imune a `PYTHONHASHSEED`); a paridade de ordem\n  intra-processo do passo 2b está verde.",
+              "newString": "- [ ] Regressão das 6 automatizada: para cada sequência do gabarito, o\n  conjunto de ids devolvido pelo código novo é idêntico ao fixture (comparação\n  ordenada alfabeticamente, imune a `PYTHONHASHSEED`)."
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Edited docs/features/sequencias-customizadas/03-plan.md (1 replacement)"
+              }
+            ],
+            "metadata": {
+              "files": [
+                {
+                  "file": "docs/features/sequencias-customizadas/03-plan.md",
+                  "patch": "Index: docs/features/sequencias-customizadas/03-plan.md\n===================================================================\n--- docs/features/sequencias-customizadas/03-plan.md\n+++ docs/features/sequencias-customizadas/03-plan.md\n@@ -184,10 +184,9 @@\n - [ ] `python -m unittest discover -s tests -v` passa a partir da raiz, com\n   `requirements.txt` inalterado (só stdlib + Flask + gunicorn).\n - [ ] Regressão das 6 automatizada: para cada sequência do gabarito, o\n   conjunto de ids devolvido pelo código novo é idêntico ao fixture (comparação\n-  ordenada alfabeticamente, imune a `PYTHONHASHSEED`); a paridade de ordem\n-  intra-processo do passo 2b está verde.\n+  ordenada alfabeticamente, imune a `PYTHONHASHSEED`).\n - [ ] `curl localhost:8080/sequencias` logo após o boot lista as 6 sementes\n   com `total_musicas > 0`.\n - [ ] Cadastro idempotente via API: `POST /sequencias` com sequência nova →\n   201; repetição → 200 com `existente: true` e mesmo `id`;\n",
+                  "status": "modified",
+                  "additions": 1,
+                  "deletions": 2
+                }
+              ],
+              "truncated": false
+            }
+          },
+          "time": {
+            "created": 1793566917524,
+            "ran": 1793566919027,
+            "completed": 1793566919086
+          }
+        }
+      ],
+      "snapshot": {
+        "start": "7060031f7d55ae7bd9efe7d86741379a63bdf745",
+        "end": "cdac453c9dbdb5c537083d171e1e03ed816d3e7b",
+        "files": [
+          "docs/features/sequencias-customizadas/03-plan.md"
+        ]
+      },
+      "finish": "tool-calls",
+      "rawFinish": "tool_calls",
+      "cost": 0,
+      "tokens": {
+        "input": 3388,
+        "output": 1451,
+        "reasoning": 827,
+        "cache": {
+          "read": 43840,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_198eb4a71001f6hFCKPntSxodp",
+      "time": {
+        "created": 1793566919291,
+        "streamed": 1793566969093,
+        "completed": 1793566969172
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "kimi-k3",
+        "providerID": "opencode-go",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The edits all applied. Let me verify the file is coherent now — quick check that there are no remaining references to \"2b\" or the removed test, and that the file reads consistently.",
+          "native": {
+            "reasoningField": "reasoning_content"
+          },
+          "time": {
+            "created": 1793566960357,
+            "completed": 1793566969083
+          }
+        },
+        {
+          "type": "text",
+          "text": "As quatro edições aplicaram. Vou conferir se não sobrou referência pendente ao \"2b\" ou à função apagada."
+        },
+        {
+          "type": "tool",
+          "id": "grep_0_9d0acf29",
+          "name": "grep",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "pattern": "2b|get_similares_por_sequencia",
+              "path": "docs/features/sequencias-customizadas/03-plan.md"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Found 5 matches\n/Users/julio/Documents/26.2/ciframe/docs/features/sequencias-customizadas/03-plan.md:\n  Line 25:    chama `get_similares_por_sequencia(id_seq, generos)` para `id_seq` 0–5,\n\n  Line 41:    bordas, devolvendo os mesmos campos de `get_similares_por_sequencia`.\n\n  Line 47:    `busca_por_sequencia` com a de `get_similares_por_sequencia` para as 6 —\n\n  Line 105:    dict `sequencias` e a função `get_similares_por_sequencia`.\n\n  Line 144: | `main.py` | Índice por vocabulário + `cifra_borda` no load; `busca_por_sequencia`; init + seed no boot; `GET/POST /sequencias`; `/similares` resolve por chave e valida `pagina`; remove dict `sequencias` e `get_similares_por_sequencia` |\n"
+              }
+            ],
+            "metadata": {
+              "matches": 5,
+              "truncated": false
+            }
+          },
+          "time": {
+            "created": 1793566969079,
+            "ran": 1793566969087,
+            "completed": 1793566969132
+          }
+        }
+      ],
+      "snapshot": {
+        "start": "cdac453c9dbdb5c537083d171e1e03ed816d3e7b",
+        "end": "cdac453c9dbdb5c537083d171e1e03ed816d3e7b",
+        "files": []
+      },
+      "finish": "tool-calls",
+      "rawFinish": "tool_calls",
+      "cost": 0,
+      "tokens": {
+        "input": 2527,
+        "output": 118,
+        "reasoning": 39,
+        "cache": {
+          "read": 47168,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_198ec0d67001BvrHnPBLM1Xjiw",
+      "time": {
+        "created": 1793566969199,
+        "streamed": 1793566973987,
+        "completed": 1793566974018
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "kimi-k3",
+        "providerID": "opencode-go",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The remaining references are all legitimate:\n- Line 25: step 1 uses the old function to generate the gabarito (it still exists at that point) ✓\n- Line 41: step 2 says the new function returns the same fields as the old one ✓\n- Line 47: the one-time manual check in step 2 ✓\n- Line 105: step 8 deletes it ✓\n- Line 144: files table ✓\n\nNo dangling \"2b\" references. The decision is consistent now: the suite only has set-based tests that survive step 8, the order-parity check is a one-time manual command in step 2, and the definition of done only requires the set-based regression. Done — summarize briefly.",
+          "native": {
+            "reasoningField": "reasoning_content"
+          },
+          "time": {
+            "created": 1793566970390,
+            "completed": 1793566973984
+          }
+        },
+        {
+          "type": "text",
+          "text": "Resolvido. As referências restantes a `get_similares_por_sequencia` são todas legítimas (geração do gabarito no passo 1, conferência manual no passo 2, remoção no passo 8). O que mudou:\n\n- **Decisão sobre o 2b**: saiu da suíte commitada. O `tests.test_matching` fica com dois testes permanentes — comparação de conjunto contra o gabarito e o caso de borda `A7 D A` — e a paridade de ordem virou uma conferência manual única via `python -c`, feita no passo 2 enquanto a função velha existe. Nada depende dela depois do passo 8, então a suíte continua verde em todos os passos. A seção de riscos foi ajustada para registrar esse raciocínio, e a definição de pronto exige só a regressão por conjunto.\n- **Passo 1**: a verificação agora lista os 6 totais da §2.1 — `bm;g;d;a` = 199, `c;g;am;f` = 296, `em;g` = 4, `c;a7;dm;g7` = 5, `gm;f` = 7, `c;c7;f;fm` = 3, soma 514."
+        }
+      ],
+      "snapshot": {
+        "start": "cdac453c9dbdb5c537083d171e1e03ed816d3e7b",
+        "end": "cdac453c9dbdb5c537083d171e1e03ed816d3e7b",
+        "files": []
+      },
+      "finish": "stop",
+      "rawFinish": "stop",
+      "cost": 0,
+      "tokens": {
+        "input": 2919,
+        "output": 338,
+        "reasoning": 159,
+        "cache": {
+          "read": 47168,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_198ec204a001FxOQxgzMqm0BaD",
+      "time": {
+        "created": 1793566974026
+      },
+      "type": "idle",
+      "outcome": "succeeded"
+    }
+  ]
+}
