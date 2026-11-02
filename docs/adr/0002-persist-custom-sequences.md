@@ -65,8 +65,10 @@ mostra a diferença que o `lower()` apagava.
 
 Consequências: o `UNIQUE(chave)` passa a distinguir caixa, o seed entra com as
 6 na grafia exibida, e um banco criado antes da revisão fica com chaves
-minúsculas que não são encontradas — como a feature não foi publicada, o
-`dados/sequencias.db` local é apagado e recriado pelo seed, sem migração. Fica
+minúsculas que não são encontradas. Isso só aconteceu na máquina de
+desenvolvimento, com o `dados/sequencias.db` local, que já foi apagado: a
+feature nunca foi publicada, então não há banco de usuário a migrar e o seed
+recria o catálogo no próximo boot. Fica
 o limite já aceito: `G7sus` e `G7SUS` são o mesmo acorde e viram entradas
 diferentes, como `C7M` e `Cmaj7`; normalização de notação continua fora do
 escopo. O texto original acima fica como registro da decisão anterior.

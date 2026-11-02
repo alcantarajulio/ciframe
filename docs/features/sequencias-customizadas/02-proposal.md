@@ -302,3 +302,30 @@ Consequência de dados: a chave antiga (`bm;g;d;a`) não encontra mais as
 sequências novas (`Bm;G;D;A`). Como a feature ainda não foi publicada, não há
 migração: o banco local `dados/sequencias.db` é recriado pelo seed no próximo
 boot.
+
+### Outros desvios do texto original
+
+O texto acima continua como registro da decisão; esta lista só aponta onde a
+implementação diverge dele (fora a caixa exata, já tratada nesta revisão):
+
+- **Caminho do banco.** O default é `dados/sequencias.db` relativo, e não
+  `/app/dados/sequencias.db` (`:92`): no container o `WORKDIR` é `/app`, então
+  o arquivo cai no mesmo lugar; localmente fica no checkout, coerente com o
+  CSV, que já exige rodar da raiz.
+- **Resposta 200 do `POST /sequencias`.** O exemplo mostra `"id": 0` (`:140`);
+  a implementação devolve o `id` real da linha existente e também `acordes`,
+  como no 201.
+- **Tela de resultados.** O texto original só previa catálogo, formulário e
+  `total_musicas` (`:180-186`). A implementação também mostra mensagem de zero
+  resultados — com variante quando há filtro de gênero, para não dizer que a
+  sequência não existe quando ela só não tem músicas naquele gênero —, o aviso
+  "mostrando 100 de N" e codifica com `encodeURIComponent` os acordes e o
+  gênero enviados na URL, porque o dataset tem acordes com `#`, `+` e `%` que
+  quebravam a query (`C#m,A,E` virava `sequencia=C`). Os `orderBy`/`ng-hide`
+  do template continuam intocados, como pedido.
+- **`.gitignore`.** O texto cita `dados/` só no `.dockerignore` (`:97`);
+  a implementação ignora `dados/` também no `.gitignore`, porque o default
+  relativo cria o banco no checkout em desenvolvimento.
+- **Referências de linha.** As citações de `main.py`, `sequencia.js` e
+  `sequencia.html` são da versão anterior à feature e não batem mais com os
+  arquivos atuais.

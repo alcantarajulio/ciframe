@@ -894,6 +894,9 @@ def main():
                 print('  ex. so graus: %s -> %s' % (k, ' '.join(x['cifra'][i:i + 4])))
                 break
 
+    # --app carrega o main.py atual, mas este cross-check foi escrito contra o
+    # commit e33628c: a partir do passo 8 da feature de sequências
+    # (get_similares_por_sequencia removida) a seção 17 falha.
     if args.app:
         print()
         print('=' * 78)

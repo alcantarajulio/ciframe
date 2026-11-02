@@ -116,7 +116,7 @@ Três restrições que atravessam o plano:
    **Verificação:** `python -m unittest tests.test_api` (test_client com
    `SEQUENCIAS_DB` temporário setado antes de importar `main`): lista tem as
    6 sementes, e `total_musicas` de `bm;g;d;a` é igual a
-   `len(gabarito["bm;g;d;a"])`. Mais `curl localhost:5000/sequencias` com o
+   `len(gabarito["bm;g;d;a"])`. Mais `curl localhost:5001/sequencias` com o
    servidor de pé.
 
 6. [x] **`POST /sequencias`: criação e idempotência.** Corpo
@@ -143,11 +143,11 @@ Três restrições que atravessam o plano:
    conta uma vez por grafia (via `musica.acordes`), então um refrão repetido
    não distorce a ordem.
    Cada token sofre `strip` de espaços nas pontas **antes** da validação e é
-   guardado já sem eles (`[" Bm "]` vira `["Bm"]` e cai na chave `bm`); sem
+   guardado já sem eles (`[" Bm "]` vira `["Bm"]` e cai na chave `Bm`); sem
    isso `"Bm "` seria recusado como desconhecido mesmo sendo grafia do
    dataset. A checagem de vazio roda depois do trim e só separadores
    (`,`/`;`) também contam como vazio. O trim não funde acordes diferentes:
-   `A7M` (sétima maior) continua em `a7m`, distinto de `Am7` em `am7`.
+   `A7M` (sétima maior) continua em `A7M`, distinto de `Am7` em `Am7`.
    **Verificação:** unittest cobrindo cada 400 — status, campo `erro` e, no
    caso do acorde, `sugestoes` com todas as grafias (`bm` → `['Bm']`), ordem
    por uso (`am7` começa com `Am7`, não `AM7`; 5.729 x 40 músicas; `f#m`
@@ -261,28 +261,52 @@ Três restrições que atravessam o plano:
 
 ## Definição de pronto
 
-- [ ] `python -m unittest discover -s tests -v` passa a partir da raiz, com
+- [x] `python -m unittest discover -s tests -v` passa a partir da raiz, com
   `requirements.txt` inalterado (só stdlib + Flask + gunicorn).
-- [ ] Regressão das 6 automatizada: para cada sequência do gabarito, o
+  **Prova:** suíte completa verde (30 testes, incluindo o novo
+  `test_post_e_busca_da_mesma_sequencia_com_sustenido`); `requirements.txt`
+  tem só `Flask==3.1.3` e `gunicorn==23.0.0`.
+- [x] Regressão das 6 automatizada: para cada sequência do gabarito, o
   conjunto de ids devolvido pelo código novo é idêntico ao fixture (comparação
   ordenada alfabeticamente, imune a `PYTHONHASHSEED`).
-- [ ] `curl localhost:8080/sequencias` logo após o boot lista as 6 sementes
+  **Prova:** `tests/test_matching.py::test_regressao_das_seis_sequencias` e
+  `tests/test_api.py::test_regressao_das_seis_pelo_endpoint` comparam
+  `sorted(ids)` com o fixture (514 ids: 199, 296, 4, 5, 7, 3);
+  `scripts/gerar_gabarito_sequencias.py` reproduz o fixture byte a byte
+  (`git diff --exit-code` vazio).
+- [x] `curl localhost:8080/sequencias` logo após o boot lista as 6 sementes
   com `total_musicas > 0`.
-- [ ] Cadastro idempotente via API: `POST /sequencias` com sequência nova →
+  **Prova:** verificado no container (passo 9): 6 sementes com totais
+  199, 296, 4, 5, 7, 3.
+- [x] Cadastro idempotente via API: `POST /sequencias` com sequência nova →
   201; repetição → 200 com `existente: true` e mesmo `id`;
   `/similares?sequencia=` com ela devolve resultado não vazio.
-- [ ] Persistência verificada em container: com
+  **Prova:** `test_post_repetido_e_idempotente` (201 → 200, mesmo id) e
+  `test_post_e_busca_da_mesma_sequencia_com_sustenido` (POST `C#m,A,E` →
+  busca devolve os mesmos ids de `busca_por_sequencia`, não vazio).
+- [x] Persistência verificada em container: com
   `docker run -v deciframe-dados:/app/dados -p 8080:8080 ciframe`, cadastrar
   uma sequência, `docker rm -f` no container, subir de novo com o mesmo
   volume → `GET /sequencias` ainda contém a sequência cadastrada.
-- [ ] Sem o volume, o cadastro não sobrevive a `docker rm` — e README e
+  **Prova:** verificação manual do passo 9, com o volume nomeado.
+- [x] Sem o volume, o cadastro não sobrevive a `docker rm` — e README e
   AGENTS documentam os dois comportamentos.
-- [ ] Local sem Docker: `python main.py` cria `dados/sequencias.db` na raiz do
+  **Prova:** verificação manual do passo 9 (cadastro some após `docker rm`
+  sem `-v`); `README.md:23-27` e `AGENTS.md:29-36`.
+- [x] Local sem Docker: `python main.py` cria `dados/sequencias.db` na raiz do
   checkout (sem tocar em `/app`), e o cadastro sobrevive a restart do
   processo.
-- [ ] UI `#/porsequencia`: lista as sequências do backend com o total de
+  **Prova:** `dados/sequencias.db` existe no checkout e o servidor local na
+  5001 (mesmo entrypoint, porta trocada só porque o AirPlay ocupa a 5000)
+  lista, após restart, os cadastros feitos em execuções anteriores.
+- [x] UI `#/porsequencia`: lista as sequências do backend com o total de
   músicas, cadastra pela página (a nova fica selecionada) e exibe as
   mensagens dos 400, incluindo a sugestão de grafia.
-- [ ] Endpoints antigos intactos: `curl localhost:8080/generos` devolve o
+  **Prova:** checklist manual do passo 10 verificado pelo usuário no
+  navegador (lista, busca, cadastro, sugestão clicável, duplicada, campo
+  vazio e filtro de gênero).
+- [x] Endpoints antigos intactos: `curl localhost:8080/generos` devolve o
   JSON de gêneros e `/search` + `/similares?acordes=` continuam respondendo
   como hoje.
+  **Prova:** `test_acordes_e_search_intactos`; `curl /generos` na 8080
+  verificado no passo 9.

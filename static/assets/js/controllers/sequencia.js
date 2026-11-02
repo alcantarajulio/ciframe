@@ -65,7 +65,9 @@ angular.module('deciframeApp').controller('SequenciaController', function($http,
   var createChordsString = function(chords) {
     var str = "";
     for (var i = 0; i < chords.length; i++) {
-      str = str.concat(chords[i].acorde, ',');
+      // o dataset tem acordes com '#', '+' e '%': sem codificar, o '#' corta a
+      // URL, o '+' chega como espaço e o '%' gera query malformada
+      str = str.concat(encodeURIComponent(chords[i].acorde), ',');
     }
     return str.substring(0, str.length-1);
   }
@@ -84,7 +86,8 @@ angular.module('deciframeApp').controller('SequenciaController', function($http,
     var apiUrl = "";
     var searchString = "similares?sequencia=".concat(createChordsString(vm.minhaSequencia.acordes));
     if (vm.meuGenero !== "" && vm.meuGenero !== null) {
-      searchString += "&generos="+vm.meuGenero;
+      // gêneros como "R&B;" também precisam de codificação
+      searchString += "&generos="+encodeURIComponent(vm.meuGenero);
     }
     $http.get(apiUrl.concat(searchString))
       .success(function(data) {
@@ -92,7 +95,11 @@ angular.module('deciframeApp').controller('SequenciaController', function($http,
         vm.isSearching = false;
         vm.musics = data;
         if (!data.length) {
-          vm.esfigeSpeech = "Nenhuma música tem essa sequência";
+          // com filtro de gênero a sequência pode ter resultados fora dele;
+          // a mensagem não pode dizer que não existe nenhuma música
+          vm.esfigeSpeech = (vm.meuGenero === "" || vm.meuGenero === null)
+            ? "Nenhuma música tem essa sequência"
+            : "Nenhuma música desse gênero tem essa sequência";
           vm.showSearchResultsCount = false;
           return;
         }
@@ -106,6 +113,7 @@ angular.module('deciframeApp').controller('SequenciaController', function($http,
         }
       })
       .error(function(data) {
+        vm.progressbar.complete();
         vm.esfigeSpeech = "Ops! Algo errado.";
         vm.isSearching = false;
         vm.showSearchResultsCount = false;

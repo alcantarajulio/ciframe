@@ -68,6 +68,25 @@ class TestSequenciasApi(unittest.TestCase):
         lista = self.corpo(self.client.get('/sequencias'))
         self.assertEqual(len(lista), 7)
 
+    def test_post_e_busca_da_mesma_sequencia_com_sustenido(self):
+        # fluxo completo da UI: cadastra e busca a mesma chave. O '#' precisa
+        # sobreviver ao encode da URL; sem ele a busca virava "sequencia=C" e
+        # devolvia outro conjunto (ou vazio).
+        tokens = ['C#m', 'A', 'E']
+        criada = self.client.post('/sequencias', json={'acordes': tokens})
+        self.assertEqual(criada.status_code, 201)
+        corpo = self.corpo(criada)
+        self.assertEqual(corpo['acordes'], tokens)
+
+        busca = self.client.get('/similares', query_string={
+                'sequencia': ','.join(tokens)})
+        self.assertEqual(busca.status_code, 200)
+        ids = [m['id_unico_musica'] for m in self.corpo(busca)]
+        self.assertGreater(len(ids), 0)
+        self.assertEqual(ids, [m['id_unico_musica']
+                for m in main.busca_por_sequencia(tokens)])
+        self.assertEqual(len(ids), corpo['total_musicas'])
+
     def test_post_repetido_e_idempotente(self):
         resposta_primeiro = self.client.post('/sequencias',
                 json={'acordes': ['D', 'A', 'Bm', 'G']})
