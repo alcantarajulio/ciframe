@@ -68,8 +68,9 @@ Três restrições que atravessam o plano:
    testes commitados: (a) para cada uma das 6, na grafia do seed,
    `sorted(ids novos) == gabarito[chave]` — as chaves do fixture seguem em
    minúsculas, o casamento é `';'.join(token.lower())`; (b) borda:
-   `["A7","D","A"]` devolve exatamente 1 música
-   (não 17 por prefixo); (c) `busca_por_sequencia([])` devolve `[]` — a
+   `["B","Em","E"]` devolve 0 na caixa exata e devolveria 2 sem as bordas
+   (`E` casaria como prefixo de `Em`; o `A7,D,A` da proposta devolve 1 com ou
+   sem borda sob vocabulário exato); (c) `busca_por_sequencia([])` devolve `[]` — a
    sequência vazia não chega à busca; (d) filtro de gênero:
    `busca_por_sequencia(["Bm","G","D","A"], ['Rock'])` devolve só músicas de
    Rock, na mesma ordem relativa do resultado sem filtro; (e) caixa muda o

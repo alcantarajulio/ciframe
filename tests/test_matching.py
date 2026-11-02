@@ -34,11 +34,15 @@ class TestMatching(unittest.TestCase):
             self.assertEqual(ids, gabarito[chave], chave)
 
     def test_borda_impede_match_por_prefixo(self):
-        # sem as bordas ';', 'a7;d;a' casa por prefixo em cifras como
-        # 'A7;D;A7' e devolve 17 músicas; com bordas, exatamente 1
-        # (02-proposal.md, "Bordas, e não in puro")
-        similares = main.busca_por_sequencia(['A7', 'D', 'A'])
-        self.assertEqual(len(similares), 1)
+        # sem as bordas ';', 'B;Em;E' casa como prefixo de 'B;Em;Em' (o E
+        # "entra" no Em) nas músicas cujo vocabulário é exatamente
+        # {B, Em, E}: devolve 2. Com bordas, a sequência não aparece como
+        # bloco e o resultado é vazio. (A7,D,A não serve de caso: com
+        # vocabulário exato já devolve 1 com ou sem borda; os 17 citados na
+        # proposta foram medidos com a regra literal do gerador, que não é a
+        # regra usada aqui.)
+        similares = main.busca_por_sequencia(['B', 'Em', 'E'])
+        self.assertEqual(len(similares), 0)
 
     def test_sequencia_vazia_nao_chega_na_busca(self):
         # sem a guarda, ';;' casaria as 8.141 músicas de cifra vazia (§2.8)
