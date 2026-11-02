@@ -257,3 +257,39 @@ acontece.
   contrato, não limpeza.
 - Reescrever o AngularJS 1.4.9 ou o layout da página: o ADR 0003 libera tocar no
   frontend quando a tarefa exige, e esta exige o mínimo.
+
+## Revisão — caixa exata no matching e na chave (2026-11-01)
+
+Esta seção revisa a decisão de "Ordem, rotação e caixa" acima, que continua no
+texto como registro. O que muda: **a caixa do acorde passa a fazer parte da
+identidade**, tanto no matching quanto na chave do catálogo. `cifra_borda`, o
+índice por vocabulário e `busca_por_sequencia` deixam de baixar os tokens para
+minúsculas; a chave passa a ser `';'.join(tokens)` na grafia digitada (depois do
+`strip`). `acordes` continua guardado como foi digitado.
+
+Por quê: `A7M` é sétima maior e `A7m` é menor com sétima; `AM7` ≠ `Am7`,
+`F#M` ≠ `F#m`, `F7M` ≠ `F7m`. Nesses pares a caixa não é ruído de digitação —
+é o que distingue o acorde. O `lower()` vinha do gerador
+(`generate_data_set.py:12`), não de uma decisão musical; aplicá-lo fazia buscar
+`AM7` trazer música com `Am7`. As 151 grafias que colidiam (§1.4) colidiam no
+resultado justamente por causa disso.
+
+Medição (regra A com caixa exata, índice e bordas sem `lower()`): as 6
+sequências continuam batendo **id a id** com o gabarito — `bm;g;d;a` 199,
+`c;g;am;f` 296, `em;g` 4, `c;a7;dm;g7` 5, `gm;f` 7, `c;c7;f;fm` 3 (514 no
+total). Caso real do dataset: `C#M A E` devolve só `rpm_ninfa`, enquanto
+`C#m A E` devolve 4 músicas (Kings Of Leon, U2, Hillsong United, Wiz Khalifa)
+— com o `lower()` as duas buscas devolviam as mesmas 5.
+
+Limite aceito: a caixa só separa acordes no par `m`/`M`. Grafias que diferem em
+mais que isso continuam separadas como já eram, e grafias que são o mesmo
+acorde mas mudam a caixa de outra letra também viram sequências diferentes:
+`G7sus` e `G7SUS` são o mesmo acorde e agora são duas entradas, como `C7M` e
+`Cmaj7` já são hoje. Normalizar notação (enarmonia, `maj7`/`7M`, `sus`) segue
+fora do escopo — a mudança aqui é parar de descartar caixa, não passar a
+normalizar.
+
+Consequência de dados: a chave antiga (`bm;g;d;a`) não encontra mais as
+sequências novas (`Bm;G;D;A`). Como a feature ainda não foi publicada, não há
+migração: o banco local `dados/sequencias.db` é recriado pelo seed no próximo
+boot.

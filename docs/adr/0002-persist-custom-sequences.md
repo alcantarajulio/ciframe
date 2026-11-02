@@ -48,3 +48,25 @@ container, então o arquivo pertence ao root: backup é copiar o arquivo (com o
 `INSERT` idempotente apoiado na chave única, o que deixa o catálogo
 autossuficiente: o CSV continua sendo a fonte das músicas e o oráculo do teste de
 regressão, mas deixa de ser a fonte do catálogo.
+
+## Revisão — a chave preserva a caixa (2026-11-01)
+
+A decisão acima continua valendo no resto; o que muda é a identidade da chave.
+A proposta definia a chave como os tokens em minúsculas unidos por `;`, e o
+matching também baixava tudo. Passamos a usar a grafia digitada (depois do
+`strip`) na `chave` e nos índices de matching: `A7M;D` e `A7m;D` são linhas
+diferentes, assim como `AM7` e `Am7` deixam de retornar o mesmo conjunto.
+
+O motivo é musical: nesses pares a caixa distingue acordes (`A7M` é sétima
+maior, `A7m` é menor com sétima; `F#M` ≠ `F#m`), não é variação de digitação.
+A medição com caixa exata preserva a regressão 514/514 das 6 (199, 296, 4, 5,
+7, 3) id a id, e o caso real `C#M A E` (1 música) x `C#m A E` (4 músicas)
+mostra a diferença que o `lower()` apagava.
+
+Consequências: o `UNIQUE(chave)` passa a distinguir caixa, o seed entra com as
+6 na grafia exibida, e um banco criado antes da revisão fica com chaves
+minúsculas que não são encontradas — como a feature não foi publicada, o
+`dados/sequencias.db` local é apagado e recriado pelo seed, sem migração. Fica
+o limite já aceito: `G7sus` e `G7SUS` são o mesmo acorde e viram entradas
+diferentes, como `C7M` e `Cmaj7`; normalização de notação continua fora do
+escopo. O texto original acima fica como registro da decisão anterior.

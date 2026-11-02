@@ -94,18 +94,20 @@ for k,v in genero_musicas.items():
 f.close()
 
 # índice por vocabulário para a busca por sequência (regra A): frozenset dos
-# acordes em minúsculas -> músicas com exatamente esse vocabulário. As listas
+# acordes na caixa exata -> músicas com exatamente esse vocabulário. As listas
 # seguem a mesma iteração de apply_filtro (gênero a gênero, cada gênero por
 # popularidade) para preservar a ordem de apply_filtro — que é a mesma ordem
-# antiga de get_similares_por_sequencia, hoje removida.
+# antiga de get_similares_por_sequencia, hoje removida. Caixa exata: A7M
+# (sétima maior) e A7m (menor com sétima) são acordes diferentes; o lower()
+# antigo apagava isso (revisão de 2026-11-01 na proposta e no ADR 0002).
 # apply_filtro só é definida abaixo, então o loop é feito aqui na mesma forma.
 cifra_borda = {}
 indice_vocabulario = {}
 for genero in generos:
     for musica in genero_musicas[genero]:
         cifra_borda[musica.id_unico_musica] = ';' + ';'.join(
-                token.lower() for token in musica.cifra) + ';'
-        vocabulario = frozenset(token.lower() for token in musica.acordes)
+                musica.cifra) + ';'
+        vocabulario = frozenset(musica.acordes)
         indice_vocabulario.setdefault(vocabulario, []).append(musica)
 
 # catálogo de sequências: cria diretório/schema (conferindo user_version) e
@@ -264,7 +266,7 @@ def get_similares():
         if pagina < 1:
             return json.dumps({'erro' : 'pagina_invalida'}), 400
 
-        tokens = [token.strip().lower() for token in sequencia_tag.split(',')]
+        tokens = [token.strip() for token in sequencia_tag.split(',')]
         tokens = [token for token in tokens if token]
         if not tokens:
             return json.dumps([])
@@ -281,13 +283,13 @@ def get_similares():
     return json.dumps(get_pagina(similares, pagina_tag))
 
 # Busca por sequência de acordes (regra A): vocabulário exato via índice +
-# bloco contíguo testado com bordas ';' (sem borda, 'a7;d;a' casaria por
-# prefixo em 'A7;D;A7'). Devolve os mesmos campos do /similares (dict por
+# bloco contíguo testado com bordas ';' (sem borda, 'A7;D;A' casaria por
+# prefixo em 'A7;D;A7'). A caixa é exata (A7M ≠ A7m), tanto no vocabulário
+# quanto no bloco. Devolve os mesmos campos do /similares (dict por
 # música), na ordem de apply_filtro. generos_key filtra por gênero, como a
 # função antiga fazia. Sequência vazia devolve [] — sem a
 # guarda, ';;' casaria as músicas de cifra vazia (§2.8 da pesquisa).
 def busca_por_sequencia(tokens, generos_key=None):
-    tokens = [token.lower() for token in tokens]
     if not tokens:
         return []
     seq_borda = ';' + ';'.join(tokens) + ';'

@@ -82,38 +82,48 @@ class TestSequenciasApi(unittest.TestCase):
         lista = self.corpo(self.client.get('/sequencias'))
         self.assertEqual(len(lista), 7)
 
-    def test_post_idempotente_entre_grafias_que_so_diferem_na_caixa(self):
-        # Am7 e AM7 são grafias do mesmo acorde no dataset (as duas passam na
-        # validação exata) e caem na mesma chave am7;d: o segundo POST devolve
-        # a existente, com o mesmo id e os acordes como foram digitados antes
-        primeira = self.client.post('/sequencias',
+    def test_post_caixa_distingue_acordes(self):
+        # AM7 e Am7 são acordes diferentes (lá maior com sétima x lá menor
+        # com sétima, apesar das mesmas letras): chaves e linhas distintas
+        am7 = self.client.post('/sequencias',
                 json={'acordes': ['Am7', 'D']})
-        self.assertEqual(primeira.status_code, 201)
-        corpo_primeiro = self.corpo(primeira)
+        self.assertEqual(am7.status_code, 201)
+        corpo_am7 = self.corpo(am7)
 
-        segunda = self.client.post('/sequencias',
+        am7_maiusculo = self.client.post('/sequencias',
                 json={'acordes': ['AM7', 'D']})
-        self.assertEqual(segunda.status_code, 200)
-        corpo_segundo = self.corpo(segunda)
-        self.assertTrue(corpo_segundo['existente'])
-        self.assertEqual(corpo_segundo['id'], corpo_primeiro['id'])
-        self.assertEqual(corpo_segundo['acordes'], ['Am7', 'D'])
+        self.assertEqual(am7_maiusculo.status_code, 201)
+        corpo_am7_maiusculo = self.corpo(am7_maiusculo)
+        self.assertFalse(corpo_am7_maiusculo['existente'])
+        self.assertNotEqual(corpo_am7_maiusculo['id'], corpo_am7['id'])
+        self.assertEqual(corpo_am7_maiusculo['acordes'], ['AM7', 'D'])
 
-        # espaços nas pontas são trimados antes da validação: mesma chave
+        # A7M x A7m é o par que só difere na caixa (mesmas letras)
+        a7m = self.client.post('/sequencias',
+                json={'acordes': ['A7M', 'D']})
+        self.assertEqual(a7m.status_code, 201)
+        a7m_minusculo = self.client.post('/sequencias',
+                json={'acordes': ['A7m', 'D']})
+        self.assertEqual(a7m_minusculo.status_code, 201)
+        self.assertNotEqual(self.corpo(a7m_minusculo)['id'],
+                self.corpo(a7m)['id'])
+
+        # repetição exata continua idempotente
+        repetida = self.client.post('/sequencias',
+                json={'acordes': ['Am7', 'D']})
+        self.assertEqual(repetida.status_code, 200)
+        self.assertTrue(self.corpo(repetida)['existente'])
+        self.assertEqual(self.corpo(repetida)['id'], corpo_am7['id'])
+
+        # espaços nas pontas não mudam a identidade (trim; a caixa é mantida)
         com_espacos = self.client.post('/sequencias',
                 json={'acordes': [' AM7 ', ' D ']})
         self.assertEqual(com_espacos.status_code, 200)
-        self.assertEqual(self.corpo(com_espacos)['id'], corpo_primeiro['id'])
-
-        # A7M é sétima maior, acorde diferente de Am7 (menor com sétima):
-        # a chave a7m;d não colapsa com am7;d, então cria outra sequência
-        terceira = self.client.post('/sequencias',
-                json={'acordes': ['A7M', 'D']})
-        self.assertEqual(terceira.status_code, 201)
-        self.assertNotEqual(self.corpo(terceira)['id'], corpo_primeiro['id'])
+        self.assertEqual(self.corpo(com_espacos)['id'],
+                corpo_am7_maiusculo['id'])
 
         lista = self.corpo(self.client.get('/sequencias'))
-        self.assertEqual(len(lista), 8)
+        self.assertEqual(len(lista), 10)
 
     def test_post_tolera_espacos_nas_pontas_dos_tokens(self):
         # " Bm " e " G " passam na validação e são guardados sem os espaços
@@ -181,12 +191,16 @@ class TestSequenciasApi(unittest.TestCase):
     def test_regressao_das_seis_pelo_endpoint(self):
         with open(GABARITO) as f:
             gabarito = json.load(f)
-        for chave, ids_esperados in gabarito.items():
-            ids = self._todas_as_musicas(chave.replace(';', ','))
-            self.assertEqual(sorted(ids), ids_esperados, chave)
+        self.assertEqual(len(sequencias_db.SEMENTES), 6)
+        # as chaves do fixture são históricas, em minúsculas; a busca é na
+        # caixa exata, então usamos as 6 na grafia do seed
+        for tokens in sequencias_db.SEMENTES:
+            chave = ';'.join(token.lower() for token in tokens)
+            ids = self._todas_as_musicas(','.join(tokens))
+            self.assertEqual(sorted(ids), gabarito[chave], chave)
 
     def test_pagina_1_igual_a_busca_por_sequencia(self):
-        tokens = ['bm', 'g', 'd', 'a']
+        tokens = ['Bm', 'G', 'D', 'A']
         esperado = main.get_pagina(main.busca_por_sequencia(tokens), '1')
         obtido = self.corpo(self.client.get('/similares',
                 query_string={'sequencia': 'Bm,G,D,A'}))
@@ -199,7 +213,7 @@ class TestSequenciasApi(unittest.TestCase):
         self.assertGreater(len(obtido), 0)
 
     def test_similares_com_genero(self):
-        tokens = ['bm', 'g', 'd', 'a']
+        tokens = ['Bm', 'G', 'D', 'A']
         esperado = main.get_pagina(
                 main.busca_por_sequencia(tokens, ['Rock']), '1')
         obtido = self.corpo(self.client.get('/similares',
@@ -213,6 +227,13 @@ class TestSequenciasApi(unittest.TestCase):
                 query_string={'sequencia': 'Am,F,C,G'})
         self.assertEqual(resposta.status_code, 200)
         self.assertEqual(self.corpo(resposta), [])
+
+        # a caixa faz parte da chave: a versão minúscula de uma sequência
+        # existente não é encontrada (antes o lower() encontrava)
+        minuscula = self.client.get('/similares',
+                query_string={'sequencia': 'bm,g,d,a'})
+        self.assertEqual(minuscula.status_code, 200)
+        self.assertEqual(self.corpo(minuscula), [])
 
     def test_pagina_invalida_400(self):
         resposta = self.client.get('/similares', query_string={

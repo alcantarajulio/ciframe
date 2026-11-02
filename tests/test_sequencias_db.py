@@ -32,8 +32,8 @@ class TestSequenciasDb(unittest.TestCase):
         sequencias_db.seed()
         sequencias = sequencias_db.listar()
         self.assertEqual([s['chave'] for s in sequencias],
-                ['bm;g;d;a', 'c;g;am;f', 'em;g',
-                 'c;a7;dm;g7', 'gm;f', 'c;c7;f;fm'])
+                ['Bm;G;D;A', 'C;G;Am;F', 'Em;G',
+                 'C;A7;Dm;G7', 'Gm;F', 'C;C7;F;Fm'])
         self.assertTrue(all(s['origem'] == 'seed' for s in sequencias))
         self.assertEqual(sequencias[0]['acordes'], ['Bm', 'G', 'D', 'A'])
 
@@ -46,23 +46,37 @@ class TestSequenciasDb(unittest.TestCase):
         sequencias_db.seed()
         linha, criada = sequencias_db.inserir_ou_obter(['D', 'A', 'Bm', 'G'])
         self.assertTrue(criada)
-        self.assertEqual(linha['chave'], 'd;a;bm;g')
+        self.assertEqual(linha['chave'], 'D;A;Bm;G')
         self.assertEqual(linha['origem'], 'usuario')
         self.assertEqual(linha['acordes'], ['D', 'A', 'Bm', 'G'])
 
-        # mesma chave (caixa diferente) devolve a existente, sem criar
+        # mesmos tokens devolvem a existente, sem criar
         de_novo, criada_de_novo = sequencias_db.inserir_ou_obter(
-                ['d', 'a', 'bm', 'g'])
+                ['D', 'A', 'Bm', 'G'])
         self.assertFalse(criada_de_novo)
         self.assertEqual(de_novo['id'], linha['id'])
-        # acordes ficam como foram digitados na primeira vez
         self.assertEqual(de_novo['acordes'], ['D', 'A', 'Bm', 'G'])
         self.assertEqual(len(sequencias_db.listar()), 7)
 
+    def test_chave_distingue_caixa(self):
+        sequencias_db.seed()
+        linha, criada = sequencias_db.inserir_ou_obter(['A7M', 'D'])
+        self.assertTrue(criada)
+        self.assertEqual(linha['chave'], 'A7M;D')
+
+        # A7M é sétima maior, A7m é menor com sétima: caixa exata, linha nova
+        outra, criada_outra = sequencias_db.inserir_ou_obter(['A7m', 'D'])
+        self.assertTrue(criada_outra)
+        self.assertEqual(outra['chave'], 'A7m;D')
+        self.assertNotEqual(outra['id'], linha['id'])
+        self.assertEqual(len(sequencias_db.listar()), 8)
+
     def test_buscar_por_chave(self):
         sequencias_db.seed()
-        self.assertEqual(sequencias_db.buscar_por_chave('em;g')['acordes'],
+        self.assertEqual(sequencias_db.buscar_por_chave('Em;G')['acordes'],
                 ['Em', 'G'])
+        # a chave antiga em minúsculas não existe mais
+        self.assertIsNone(sequencias_db.buscar_por_chave('em;g'))
         self.assertIsNone(sequencias_db.buscar_por_chave('nao;existe'))
 
 if __name__ == '__main__':

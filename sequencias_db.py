@@ -43,7 +43,9 @@ def caminho_db():
 
 
 def chave_de(tokens):
-    return ';'.join(token.lower() for token in tokens)
+    # caixa exata: A7M (sétima maior) e A7m (menor com sétima) são acordes
+    # diferentes, então a identidade não baixa mais para minúsculas
+    return ';'.join(tokens)
 
 
 def conectar():

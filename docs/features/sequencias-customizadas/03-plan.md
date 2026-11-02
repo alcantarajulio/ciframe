@@ -39,10 +39,11 @@ Três restrições que atravessam o plano:
 
 2. [x] **Matching pela regra A com índice por vocabulário, sem mexer nas
    rotas.** Em `main.py`, no load do CSV: montar `cifra_borda` por música
-   (`';' + ';'.join(tokens minúsculos) + ';'` — dict à parte em `main.py`,
+   (`';' + ';'.join(tokens na caixa exata) + ';'` — dict à parte em `main.py`,
    não atributo de `Musica`, para não vazar no `__dict__` devolvido por
    `/musicas` e `/musica/<id>`; `musica.py` não muda) e o índice
-   `frozenset(acordes) -> [músicas]`, com as listas construídas na ordem de
+   `frozenset(acordes na caixa exata) -> [músicas]`, com as listas construídas
+   na ordem de
    `apply_filtro(musicas.values(), generos)` — gênero a gênero, cada gênero
    por popularidade. (`apply_filtro`, `main.py:266-272`, **ignora** o primeiro
    argumento e concatena `genero_musicas[genero]`; essa é a iteração real de
@@ -53,16 +54,24 @@ Três restrições que atravessam o plano:
    `get_similares_por_sequencia`; com `generos_key`, os candidatos são
    filtrados por `musica.genero` — a função velha filtrava via `apply_filtro`
    e a tela manda `&generos=`, então sem esse parâmetro o passo 8 quebraria o
-   filtro de gênero sem teste pegar. Guarda no início: `tokens` vazio devolve
+   filtro de gênero sem teste pegar. **A caixa é exata**: `A7M` e `A7m` são
+   vocabulários diferentes e a busca não baixa mais nada para minúsculas
+   (revisão de 2026-11-01 na proposta e no ADR 0002). Guarda no início:
+   `tokens` vazio devolve
    `[]` (sem ela, a sequência vazia casaria as 8.141 músicas de cifra vazia
    por `';;' in ';;'`, o perigo da §2.8).
-   **Verificação:** `python -m unittest tests.test_matching`, com quatro
-   testes commitados: (a) para cada uma das 6, `sorted(ids novos) ==
-   gabarito[chave]`; (b) borda: `["A7","D","A"]` devolve exatamente 1 música
+   **Verificação:** `python -m unittest tests.test_matching`, com cinco
+   testes commitados: (a) para cada uma das 6, na grafia do seed,
+   `sorted(ids novos) == gabarito[chave]` — as chaves do fixture seguem em
+   minúsculas, o casamento é `';'.join(token.lower())`; (b) borda:
+   `["A7","D","A"]` devolve exatamente 1 música
    (não 17 por prefixo); (c) `busca_por_sequencia([])` devolve `[]` — a
    sequência vazia não chega à busca; (d) filtro de gênero:
-   `busca_por_sequencia(tokens, ['Rock'])` devolve só músicas de Rock, na
-   mesma ordem relativa do resultado sem filtro. Mais uma **conferência
+   `busca_por_sequencia(["Bm","G","D","A"], ['Rock'])` devolve só músicas de
+   Rock, na mesma ordem relativa do resultado sem filtro; (e) caixa muda o
+   resultado em caso real do dataset: `["C#M","A","E"]` devolve só
+   `rpm_ninfa`, enquanto `["C#m","A","E"]` devolve as 4 músicas com `C#m`.
+   Mais uma **conferência
    manual única**, não commitada (a função velha morre no passo 8): no mesmo
    processo, comparar a ordem de `busca_por_sequencia` com a de
    `get_similares_por_sequencia` para as 6, sem filtro e com
@@ -75,12 +84,16 @@ Três restrições que atravessam o plano:
    `UNIQUE(chave)`; `PRAGMA user_version = 1` conferido no init; seed das 6
    com `INSERT OR IGNORE` e `origem='seed'`; funções `listar()`,
    `inserir_ou_obter(tokens)` (devolve `(linha, criada)`),
-   `buscar_por_chave(chave)`. Caminho via `SEQUENCIAS_DB`, default
+   `buscar_por_chave(chave)`. A chave é `';'.join(tokens)` na grafia digitada
+   (caixa exata; revisão de 2026-11-01), não em minúsculas. Caminho via
+   `SEQUENCIAS_DB`, default
    `dados/sequencias.db` (relativo), com `makedirs` do diretório no init.
    **Verificação:** `python -m unittest tests.test_sequencias_db` — usa
    arquivo temporário: schema criado, `user_version=1`, seed insere as 6 na
-   ordem certa, seed repetido não duplica, `inserir_ou_obter` duplicado
-   devolve a linha existente com `criada=False`.
+   ordem certa com as chaves na grafia do seed (`Bm;G;D;A`, ...), seed
+   repetido não duplica, `inserir_ou_obter` com os mesmos tokens devolve a
+   linha existente com `criada=False`, tokens com caixa diferente criam outra
+   linha, e `buscar_por_chave('Em;G')` encontra enquanto `'em;g'` não.
 
 4. [x] **Boot: init do banco + seed, sem mudar rota nenhuma.** Em `main.py`,
    depois do load do CSV: chamar o init de `sequencias_db.py` (cria diretório,
@@ -105,17 +118,22 @@ Três restrições que atravessam o plano:
 6. [x] **`POST /sequencias`: criação e idempotência.** Corpo
    `{"acordes": [...]}` válido → 201 `{"id", "acordes", "existente": false,
    "total_musicas"}`; mesma chave de novo → 200 com `existente: true` e mesmo
-   `id`. Chave = tokens em minúsculas unidos por `;`, na ordem digitada;
-   `acordes` guardado como digitado.
+   `id`. Chave = tokens como digitados (só `strip`), unidos por `;`, na ordem
+   digitada — **caixa exata**: `A7M;D` ≠ `A7m;D`; `acordes` guardado como
+   digitado.
    **Verificação:** unittest — POST cria, GET passa a listar 7, POST repetido
-   devolve 200 com o mesmo `id` e a lista continua com 7. Mais um
-   `curl -X POST` manual.
+   com os mesmos tokens devolve 200 com o mesmo `id` e a lista continua com 7;
+   POST com a caixa trocada (`Am7,D` depois de `AM7,D`, e `A7m,D` depois de
+   `A7M,D`) devolve 201 com outro `id`. Mais um `curl -X POST` manual.
 
 7. [x] **`POST /sequencias`: os três 400.** Corpo que não é JSON com
    `acordes` → `corpo_invalido`; lista vazia ou tokens em branco/separadores
    → `sequencia_vazia`; token fora do set `acordes` → `acorde_desconhecido`
    com `sugestao` quando existir grafia igual ignorando caixa (validação
-   exata contra o set, como na proposta).
+   exata contra o set, como na proposta). A validação é exata inclusive na
+   caixa — `AM7` e `Am7` são tokens válidos e **distintos** —, e a `sugestao`
+   continua sendo o caminho para corrigir grafia de caixa errada (`bm` →
+   `Bm`).
    Cada token sofre `strip` de espaços nas pontas **antes** da validação e é
    guardado já sem eles (`[" Bm "]` vira `["Bm"]` e cai na chave `bm`); sem
    isso `"Bm "` seria recusado como desconhecido mesmo sendo grafia do
@@ -128,8 +146,9 @@ Três restrições que atravessam o plano:
    sem os espaços.
 
 8. [x] **`/similares?sequencia=` resolve pelo catálogo; remove o dict
-   hardcoded.** Separar por vírgula, `strip`, descartar vazio, baixar caixa,
-   montar a chave e buscar no catálogo; existe →
+   hardcoded.** Separar por vírgula, `strip`, descartar vazio, montar a chave
+   **na caixa exata** (sem baixar para minúsculas; revisão de 2026-11-01) e
+   buscar no catálogo; existe →
    `busca_por_sequencia(tokens_da_linha, generos_key)`, **repassando o filtro
    de gênero** como a função velha fazia via `apply_filtro` (a tela manda
    `&generos=`); não existe → `[]` com 200, como hoje.
@@ -142,7 +161,10 @@ Três restrições que atravessam o plano:
    com `&generos=Rock`, só músicas de Rock, idêntica a
    `get_pagina(busca_por_sequencia(tokens, ['Rock']), '1')` no mesmo
    processo;
-   `Bm, G, D, A` (com espaços) funciona; sequência inexistente → `[]` 200;
+   regressão das 6 na **grafia do seed** (conjunto comparado ao gabarito,
+   chaves do fixture em minúsculas); `Bm, G, D, A` (com espaços) funciona;
+   a versão em minúsculas `bm,g,d,a` é outra chave → `[]` 200; sequência
+   inexistente → `[]` 200;
    `pagina=abc` → 400; `/similares?acordes=` e `/search` intactos. Depois,
    suíte inteira: `python -m unittest discover -s tests`.
 
